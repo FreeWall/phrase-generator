@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply h-full;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  @apply h-full bg-[#f6f6f6] text-[#333333] antialiased dark:bg-main dark:text-body;
+}
+
+#__next {
+  @apply h-full text-sm;
+}
+
+.forceStroke > path,
+.forceStroke g {
+  stroke: currentColor;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition:
+    background-color 0s 600000s,
+    color 0s 600000s;
+}
+
+.bg-loader {
+  background: linear-gradient(90deg, #ffffff 25%, #ededed 50%, #ffffff 75%);
+  background-size: 200% 100%;
+  animation: loading 1s infinite linear;
+}
+
+.dark .bg-loader {
+  background: linear-gradient(90deg, #363b40 25%, #2a2e32 50%, #363b40 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+.tooltiparrow {
+  fill: white;
+  filter: drop-shadow(0 0 3px #ced1d535);
+  clip-path: inset(0 -10px -10px -10px);
+}

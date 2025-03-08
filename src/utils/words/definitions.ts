@@ -1,0 +1,102 @@
+export type DefinitionGroup = keyof typeof definitions;
+export type Definition<T extends DefinitionGroup = DefinitionGroup> = Record<
+  T,
+  keyof (typeof definitions)[T]
+>;
+export type DefinitionTuple<T extends DefinitionGroup = DefinitionGroup> = [
+  T,
+  keyof (typeof definitions)[T],
+];
+
+export const DefinitionValue = {
+  CATEGORY: {
+    NOUN: 1,
+    ADJECTIVE: 2,
+    VERB: 5,
+    ADVERB: 6,
+  },
+  GENDER: {
+    FEMININE: 'F',
+    MASCULINE_ANIMATE: 'M',
+    MASCULINE_INANIMATE: 'I',
+    NEUTER: 'N',
+  },
+  NUMBER: {
+    SINGULAR: 'S',
+    PLURAL: 'P',
+  },
+  CASE: {
+    NOMINATIVE: 1,
+    GENITIVE: 2,
+    DATIVE: 3,
+    ACCUSATIVE: 4,
+    VOCATIVE: 5,
+    LOCATIVE: 6,
+    INSTRUMENTAL: 7,
+  },
+  MOOD: {
+    PRESENT: 'A',
+    PAST: 'I',
+  },
+  PERSON: {
+    FIRST_PERSON: 1,
+    SECOND_PERSON: 2,
+    THIRD_PERSON: 3,
+  },
+} as const;
+
+const definitions = {
+  k: {
+    1: 'podstatné meno',
+    2: 'prídavné meno',
+    5: 'sloveso',
+    6: 'příslovce',
+  },
+  g: {
+    F: 'ženský',
+    M: 'mužský životný',
+    I: 'mužský neživotný',
+    N: 'stredný',
+  },
+  n: {
+    S: 'jednotné (singulár)',
+    P: 'množné (plurál)',
+  },
+  c: {
+    1: 'nominatív',
+    2: 'genitív',
+    3: 'datív',
+    4: 'akuzatív',
+    5: 'vokatív',
+    6: 'lokál',
+    7: 'inštrumentál',
+  },
+  m: {
+    A: 'pritomne',
+    I: 'minule',
+  },
+  p: {
+    1: 'prvá osoba',
+    2: 'druhá osoba',
+    3: 'tretia osoba',
+  },
+};
+
+export function getDefinitionParam<
+  T extends DefinitionGroup,
+  K extends keyof (typeof definitions)[T],
+>(group: T, value: K): DefinitionTuple<T> {
+  return [group, value];
+}
+
+export function toDefinitions(content: string): Definition {
+  const definition: Definition = {} as Definition;
+  for (let i = 0; i < content.length; i += 2) {
+    const group = content[i] as DefinitionGroup;
+    const value = content[i + 1] as keyof (typeof definitions)[DefinitionGroup];
+    if (definitions[group]?.[value]) {
+      definition[group] = value;
+    }
+  }
+  return definition;
+}
