@@ -1,19 +1,8 @@
 import Button from '@/components/ui/button';
-import { promiseAllSequence, sleep } from '@/utils/utils';
-import {
-  DefinitionValue,
-  getDefinitionParam,
-  toDefinitions,
-} from '@/utils/words/definitions';
-import {
-  findWord,
-  getVariant1,
-  getVariant1Cached,
-  Word,
-  WordsByCategory,
-} from '@/utils/words/words';
-import { useQuery } from '@tanstack/react-query';
-import { round, set } from 'lodash-es';
+import { getRandomNumber, promiseAllSequence, sleep } from '@/utils/utils';
+import { DefinitionValue, toDefinitions } from '@/utils/words/definitions';
+import { getVariant1Cached, Word, WordsByCategory } from '@/utils/words/words';
+import { round } from 'lodash-es';
 import { useEffect, useState } from 'react';
 
 export default function Index() {
@@ -96,7 +85,7 @@ export default function Index() {
     (async () => {
       console.time('generatePhrase');
       setPhrases([]);
-      await promiseAllSequence(Array.from({ length: 20 }), async () => {
+      await promiseAllSequence(Array.from({ length: 15 }), async () => {
         await sleep(10);
         const phrase = getVariant1Cached(wordsByCategory)
           .map((word) => word.value)
@@ -110,17 +99,24 @@ export default function Index() {
   }
 
   function passwordize(phrase: string) {
-    phrase = phrase
-      .split(' ')
-      .map(
-        (word) =>
-          (Math.random() > 0.5 ? word[0]?.toUpperCase() : word[0]) +
-          word.slice(1) +
-          (Math.random() > 0.7 ? Math.floor(Math.random() * 10) : ''),
-      )
-      .join('');
-
-    return phrase;
+    const words = phrase.split(' ');
+    const numberAfter = getRandomNumber(words.length);
+    return words.map((word, idx) => (
+      <div
+        key={idx}
+        className="inline"
+      >
+        {getRandomNumber(2) == 1 ? word[0]?.toUpperCase() : word[0]}
+        {word.slice(1)}
+        {numberAfter == idx ? (
+          <div className="inline text-[#175DDC]">
+            {Math.floor(Math.random() * 10)}
+          </div>
+        ) : (
+          ''
+        )}
+      </div>
+    ));
   }
 
   return (
@@ -144,7 +140,7 @@ export default function Index() {
               className="flex"
             >
               <div className="w-1/2">{phrase}</div>
-              <div>{passwordize(phrase)}</div>
+              <div className="">{passwordize(phrase)}</div>
             </div>
           ))}
         </div>

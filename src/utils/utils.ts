@@ -21,3 +21,8 @@ export async function promiseAllSequence<ElementType, PromisedReturnType>(
     Promise.resolve<PromisedReturnType[]>([]),
   );
 }
+
+export function getRandomNumber(max: number): number {
+  const byteArray = window.crypto.getRandomValues(new Uint8Array(1));
+  return Math.floor((byteArray[0]! / 256) * max);
+}

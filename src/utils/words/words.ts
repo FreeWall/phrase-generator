@@ -1,3 +1,4 @@
+import { getRandomNumber } from '@/utils/utils';
 import {
   Definition,
   DefinitionGroup,
@@ -22,9 +23,7 @@ export function findWord(
     });
   });
 
-  return filteredWords[
-    Math.floor(Math.random() * filteredWords.length)
-  ] as Word;
+  return filteredWords[getRandomNumber(filteredWords.length)] as Word;
 }
 
 export function getVariant1(words: Word[]) {
