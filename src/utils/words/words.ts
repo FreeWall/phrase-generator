@@ -62,7 +62,6 @@ export function generatePhrase(
   const adjective2 = findWord(
     adjectivesByCase[DefinitionValue.CASE.ACCUSATIVE],
     [
-      getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
       getDefinitionParam('g', noun2.definitions.g),
       getDefinitionParam('n', noun2.definitions.n),
     ],
