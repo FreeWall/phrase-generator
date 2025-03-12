@@ -1,5 +1,5 @@
 export type DefinitionGroup = keyof typeof definitions;
-export type Definition<T extends DefinitionGroup = DefinitionGroup> = Record<
+export type Definitions<T extends DefinitionGroup = DefinitionGroup> = Record<
   T,
   keyof (typeof definitions)[T]
 >;
@@ -80,7 +80,7 @@ const definitions = {
     2: 'druhá osoba',
     3: 'tretia osoba',
   },
-};
+} as const;
 
 export function getDefinitionParam<
   T extends DefinitionGroup,
@@ -89,8 +89,15 @@ export function getDefinitionParam<
   return [group, value];
 }
 
-export function toDefinitions(content: string): Definition {
-  const definition: Definition = {} as Definition;
+export function getDefinition<T extends DefinitionGroup>(
+  definitions: Definitions<T>,
+  group: T,
+) {
+  return definitions[group];
+}
+
+export function toDefinitions(content: string): Definitions {
+  const definition: Definitions = {} as Definitions;
   for (let i = 0; i < content.length; i += 2) {
     const group = content[i] as DefinitionGroup;
     const value = content[i + 1] as keyof (typeof definitions)[DefinitionGroup];

@@ -1,7 +1,21 @@
 import Button from '@/components/ui/button';
-import { getRandomNumber, promiseAllSequence, sleep } from '@/utils/utils';
-import { DefinitionValue, toDefinitions } from '@/utils/words/definitions';
-import { getVariant1Cached, Word, WordsByCategory } from '@/utils/words/words';
+import {
+  getRandomBoolean,
+  getRandomNumber,
+  promiseAllSequence,
+  sleep,
+} from '@/utils/utils';
+import {
+  DefinitionValue,
+  getDefinition,
+  toDefinitions,
+} from '@/utils/words/definitions';
+import {
+  AdjectivesByCase,
+  generatePhrase,
+  Word,
+  WordsByCategory,
+} from '@/utils/words/words';
 import { round } from 'lodash-es';
 import { useEffect, useState } from 'react';
 
@@ -12,6 +26,9 @@ export default function Index() {
   const [phrases, setPhrases] = useState<string[]>([]);
   const [wordsByCategory, setWordsByCategory] = useState<WordsByCategory>(
     {} as WordsByCategory,
+  );
+  const [adjectivesByCase, setAdjectivesByCase] = useState<AdjectivesByCase>(
+    {} as AdjectivesByCase,
   );
 
   useEffect(() => {
@@ -73,45 +90,60 @@ export default function Index() {
         [DefinitionValue.CATEGORY.ADJECTIVE]: [],
         [DefinitionValue.CATEGORY.VERB]: [],
         [DefinitionValue.CATEGORY.ADVERB]: [],
-      } as WordsByCategory;
+      };
+      const adjectivesByCase: AdjectivesByCase = {
+        [DefinitionValue.CASE.NOMINATIVE]: [],
+        [DefinitionValue.CASE.GENITIVE]: [],
+        [DefinitionValue.CASE.DATIVE]: [],
+        [DefinitionValue.CASE.ACCUSATIVE]: [],
+        [DefinitionValue.CASE.VOCATIVE]: [],
+        [DefinitionValue.CASE.LOCATIVE]: [],
+        [DefinitionValue.CASE.INSTRUMENTAL]: [],
+      };
       words.forEach((word) => {
-        wordsByCategory[word.definitions['k']]?.push(word);
+        if (
+          getDefinition(word.definitions, 'k') ==
+          DefinitionValue.CATEGORY.ADJECTIVE
+        ) {
+          adjectivesByCase[getDefinition(word.definitions, 'c')]?.push(word);
+          return;
+        }
+        wordsByCategory[getDefinition(word.definitions, 'k')]?.push(word);
       });
       setWordsByCategory(wordsByCategory);
+      setAdjectivesByCase(adjectivesByCase);
     })();
   }, []);
 
-  function generatePhrase() {
+  function generatePhrases() {
     (async () => {
-      console.time('generatePhrase');
+      console.time('generatePhrases');
       setPhrases([]);
       await promiseAllSequence(Array.from({ length: 15 }), async () => {
         await sleep(10);
-        const phrase = getVariant1Cached(wordsByCategory)
+        const phrase = generatePhrase(wordsByCategory, adjectivesByCase)
           .map((word) => word.value)
           .join(' ');
 
         setPhrases((prev) => [...prev, phrase]);
       });
 
-      console.timeEnd('generatePhrase');
+      console.timeEnd('generatePhrases');
     })();
   }
 
   function passwordize(phrase: string) {
     const words = phrase.split(' ');
-    const numberAfter = getRandomNumber(words.length);
+    const numberAfter = getRandomNumber(0, words.length - 1);
     return words.map((word, idx) => (
       <div
         key={idx}
         className="inline"
       >
-        {getRandomNumber(2) == 1 ? word[0]?.toUpperCase() : word[0]}
+        {getRandomBoolean() ? word[0]?.toUpperCase() : word[0]}
         {word.slice(1)}
         {numberAfter == idx ? (
-          <div className="inline text-[#175DDC]">
-            {Math.floor(Math.random() * 10)}
-          </div>
+          <div className="inline text-[#175DDC]">{getRandomNumber(0, 9)}</div>
         ) : (
           ''
         )}
@@ -128,7 +160,7 @@ export default function Index() {
       <div className="space-y-4">
         <div>{words.length.toLocaleString(undefined, {})} words</div>
         <Button
-          onClick={generatePhrase}
+          onClick={generatePhrases}
           disabled={!words.length}
         >
           Generovat

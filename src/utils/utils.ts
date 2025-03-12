@@ -22,7 +22,11 @@ export async function promiseAllSequence<ElementType, PromisedReturnType>(
   );
 }
 
-export function getRandomNumber(max: number): number {
+export function getRandomNumber(min: number, max: number): number {
   const byteArray = window.crypto.getRandomValues(new Uint8Array(1));
-  return Math.floor((byteArray[0]! / 256) * max);
+  return Math.floor((byteArray[0]! / 256) * (max + 1 - min)) + min;
+}
+
+export function getRandomBoolean(): boolean {
+  return !!getRandomNumber(0, 1);
 }
