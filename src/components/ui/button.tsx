@@ -24,12 +24,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          'relative flex select-none items-center rounded p-3.5 px-5 text-sm font-bold uppercase text-white transition-[padding] duration-300 active:brightness-90',
+          'relative flex select-none items-center rounded-full p-3.5 px-5 text-sm font-bold uppercase text-white transition-[padding] duration-300',
           {
-            'bg-conversion hover:bg-conversionHover': color == 'main',
+            'bg-highlight hover:bg-highlight hover:brightness-90 active:brightness-75':
+              color == 'main',
             'bg-red-500 hover:bg-red-600': color == 'red',
             'pointer-events-none pr-12': loading,
-            'bg-conversionHover brightness-90': loading && color == 'main',
+            'bg-highlight brightness-90': loading && color == 'main',
             'bg-red-500 brightness-90': loading && color == 'red',
             'pointer-events-none bg-conversionHover brightness-[0.7]': disabled,
           },

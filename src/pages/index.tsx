@@ -121,7 +121,11 @@ export default function Index() {
       setPhrases([]);
       await promiseAllSequence(Array.from({ length: 15 }), async () => {
         await sleep(10);
-        const phrase = generatePhrase(wordsByCategory, adjectivesByCase)
+        const phrase = generatePhrase(
+          wordsByCategory,
+          adjectivesByCase,
+          'shortest',
+        )
           .map((word) => word.value)
           .join(' ');
 
@@ -165,7 +169,7 @@ export default function Index() {
         >
           Generovat
         </Button>
-        <div className="space-y-2 bg-white px-4 py-4 text-2xl dark:bg-lighter">
+        <div className="space-y-2 bg-darker px-4 py-4 text-2xl">
           {phrases.map((phrase) => (
             <div
               key={phrase}

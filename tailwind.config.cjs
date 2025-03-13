@@ -6,14 +6,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        main: '#2F3439',
-        lighter: '#363b40',
-        darker: '#272C31',
-        body: '#ced1d5',
-        conversion: '#2E88B0',
-        conversionHover: '#287090',
-        conversionText: '#40B4E8',
-        placeholder: '#858688',
+        text: '#243149',
+        darker: '#e6ebef',
+        highlight: '#175DDC',
       },
       keyframes: {
         slideDownAndFade: {

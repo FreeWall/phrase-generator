@@ -7,7 +7,7 @@ html {
 }
 body {
   font-family: 'Inter', sans-serif;
-  @apply h-full bg-[#f6f6f6] text-[#333333] antialiased dark:bg-main dark:text-body;
+  @apply text-text h-full bg-white antialiased;
 }
 
 #__next {
