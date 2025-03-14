@@ -1,21 +1,7 @@
 import Button from '@/components/ui/button';
-import {
-  getRandomBoolean,
-  getRandomNumber,
-  promiseAllSequence,
-  sleep,
-} from '@/utils/utils';
-import {
-  DefinitionValue,
-  getDefinition,
-  toDefinitions,
-} from '@/utils/words/definitions';
-import {
-  AdjectivesByCase,
-  generatePhrase,
-  Word,
-  WordsByCategory,
-} from '@/utils/words/words';
+import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
+import { toDefinitions } from '@/utils/words/definitions';
+import { generatePhrase, Word } from '@/utils/words/words';
 import { round } from 'lodash-es';
 import { useEffect, useState } from 'react';
 
@@ -24,12 +10,6 @@ export default function Index() {
   const [totalLength, setTotalLength] = useState(0);
   const [words, setWords] = useState<Word[]>([]);
   const [phrases, setPhrases] = useState<string[]>([]);
-  const [wordsByCategory, setWordsByCategory] = useState<WordsByCategory>(
-    {} as WordsByCategory,
-  );
-  const [adjectivesByCase, setAdjectivesByCase] = useState<AdjectivesByCase>(
-    {} as AdjectivesByCase,
-  );
 
   useEffect(() => {
     (async () => {
@@ -84,34 +64,6 @@ export default function Index() {
       );
 
       setWords(words);
-
-      const wordsByCategory: WordsByCategory = {
-        [DefinitionValue.CATEGORY.NOUN]: [],
-        [DefinitionValue.CATEGORY.ADJECTIVE]: [],
-        [DefinitionValue.CATEGORY.VERB]: [],
-        [DefinitionValue.CATEGORY.ADVERB]: [],
-      };
-      const adjectivesByCase: AdjectivesByCase = {
-        [DefinitionValue.CASE.NOMINATIVE]: [],
-        [DefinitionValue.CASE.GENITIVE]: [],
-        [DefinitionValue.CASE.DATIVE]: [],
-        [DefinitionValue.CASE.ACCUSATIVE]: [],
-        [DefinitionValue.CASE.VOCATIVE]: [],
-        [DefinitionValue.CASE.LOCATIVE]: [],
-        [DefinitionValue.CASE.INSTRUMENTAL]: [],
-      };
-      words.forEach((word) => {
-        if (
-          getDefinition(word.definitions, 'k') ==
-          DefinitionValue.CATEGORY.ADJECTIVE
-        ) {
-          adjectivesByCase[getDefinition(word.definitions, 'c')]?.push(word);
-          return;
-        }
-        wordsByCategory[getDefinition(word.definitions, 'k')]?.push(word);
-      });
-      setWordsByCategory(wordsByCategory);
-      setAdjectivesByCase(adjectivesByCase);
     })();
   }, []);
 
@@ -119,19 +71,13 @@ export default function Index() {
     (async () => {
       console.time('generatePhrases');
       setPhrases([]);
-      await promiseAllSequence(Array.from({ length: 15 }), async () => {
-        await sleep(10);
-        const phrase = generatePhrase(
-          wordsByCategory,
-          adjectivesByCase,
-          'short',
-        )
+      Array.from({ length: 15 }).forEach(() => {
+        const phrase = generatePhrase(words, 'short')
           .map((word) => word.value)
           .join(' ');
 
         setPhrases((prev) => [...prev, phrase]);
       });
-
       console.timeEnd('generatePhrases');
     })();
   }
@@ -147,7 +93,7 @@ export default function Index() {
         {getRandomBoolean() ? word[0]?.toUpperCase() : word[0]}
         {word.slice(1)}
         {numberAfter == idx ? (
-          <div className="inline text-[#175DDC]">{getRandomNumber(0, 9)}</div>
+          <div className="inline text-highlight">{getRandomNumber(0, 9)}</div>
         ) : (
           ''
         )}
