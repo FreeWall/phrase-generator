@@ -20,39 +20,45 @@ export type AdjectivesByCase = Record<
 type PresetName = keyof typeof presets;
 
 const presets = {
-  shortest: [
-    (wordsByCategory: WordsByCategory, adjectivesByCase: AdjectivesByCase) => {
-      const adjective = findWord(
-        adjectivesByCase[DefinitionValue.CASE.NOMINATIVE],
-      );
+  short: () => {
+    const variant = getRandomBoolean() ? 'variant1' : 'variant2';
+    return [
+      (
+        wordsByCategory: WordsByCategory,
+        adjectivesByCase: AdjectivesByCase,
+      ) => {
+        const adjective = findWord(
+          adjectivesByCase[DefinitionValue.CASE.NOMINATIVE],
+        );
 
-      const noun = findWord(wordsByCategory[DefinitionValue.CATEGORY.NOUN], [
-        getDefinitionParam('g', adjective.definitions.g),
-        getDefinitionParam('n', adjective.definitions.n),
-        getDefinitionParam('c', adjective.definitions.c),
-      ]);
+        const noun = findWord(wordsByCategory[DefinitionValue.CATEGORY.NOUN], [
+          getDefinitionParam('g', adjective.definitions.g),
+          getDefinitionParam('n', adjective.definitions.n),
+          getDefinitionParam('c', adjective.definitions.c),
+        ]);
 
-      const verb = getRandomBoolean()
-        ? findWord(wordsByCategory[DefinitionValue.CATEGORY.VERB], [
-            getDefinitionParam('g', noun.definitions.g),
-            getDefinitionParam('n', noun.definitions.n),
-          ])
-        : findWord(wordsByCategory[DefinitionValue.CATEGORY.VERB], [
-            getDefinitionParam('p', DefinitionValue.PERSON.THIRD_PERSON),
-            getDefinitionParam('n', noun.definitions.n),
-          ]);
+        const verb = getRandomBoolean()
+          ? findWord(wordsByCategory[DefinitionValue.CATEGORY.VERB], [
+              getDefinitionParam('g', noun.definitions.g),
+              getDefinitionParam('n', noun.definitions.n),
+            ])
+          : findWord(wordsByCategory[DefinitionValue.CATEGORY.VERB], [
+              getDefinitionParam('p', DefinitionValue.PERSON.THIRD_PERSON),
+              getDefinitionParam('n', noun.definitions.n),
+            ]);
 
-      return [adjective, noun, verb];
-    },
-    (wordsByCategory: WordsByCategory) => {
-      const noun = findWord(wordsByCategory[DefinitionValue.CATEGORY.NOUN], [
-        getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
-      ]);
+        return [adjective, noun, verb];
+      },
+      (wordsByCategory: WordsByCategory) => {
+        const noun = findWord(wordsByCategory[DefinitionValue.CATEGORY.NOUN], [
+          getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
+        ]);
 
-      return [noun];
-    },
-  ],
-  longest: [
+        return [noun];
+      },
+    ];
+  },
+  longest: () => [
     (wordsByCategory: WordsByCategory, adjectivesByCase: AdjectivesByCase) => {
       const adjective = findWord(
         adjectivesByCase[DefinitionValue.CASE.NOMINATIVE],
@@ -113,5 +119,7 @@ export function generatePhrase(
   presetName: PresetName,
 ) {
   const preset = presets[presetName];
-  return preset.map((fn) => fn(wordsByCategory, adjectivesByCase)).flat();
+  return preset()
+    .map((fn) => fn(wordsByCategory, adjectivesByCase))
+    .flat();
 }

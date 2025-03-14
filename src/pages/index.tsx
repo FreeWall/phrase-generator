@@ -124,7 +124,7 @@ export default function Index() {
         const phrase = generatePhrase(
           wordsByCategory,
           adjectivesByCase,
-          'shortest',
+          'short',
         )
           .map((word) => word.value)
           .join(' ');
