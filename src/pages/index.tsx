@@ -3,7 +3,7 @@ import Slider from 'rc-slider';
 import { Fragment, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
-import { HighlightNumbers } from '@/components/ui/highlightNumbers';
+import { NumbersHighlighter } from '@/components/ui/numbersHighlighter';
 import { TextTransition } from '@/components/ui/textTransition';
 import {
   DefinitionCategoryColors,
@@ -112,7 +112,7 @@ export default function Index() {
                 {words.map((word, idx) => (
                   <div
                     key={idx}
-                    className="inline group-hover/phrase:hidden group-hover/words:inline"
+                    className="hidden group-hover/phrase:hidden group-hover/words:inline"
                   >
                     {word.value}
                     {idx < words.length - 1 ? ' ' : ''}
@@ -121,7 +121,7 @@ export default function Index() {
                 {words.map((word, idx) => (
                   <div
                     key={idx}
-                    className="hidden group-hover/phrase:inline group-hover/words:hidden"
+                    className="inline group-hover/phrase:inline group-hover/words:hidden"
                     style={{
                       color: DefinitionCategoryColors[word.definitions.k],
                     }}
@@ -158,7 +158,7 @@ export default function Index() {
         </div>
         <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
           {phrase && (
-            <HighlightNumbers
+            <NumbersHighlighter
               phrase={passwordize(phraseToString(phrase), {
                 numbers: 2,
                 firstLetter: 'randomize',

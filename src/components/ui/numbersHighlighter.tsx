@@ -1,4 +1,4 @@
-export function HighlightNumbers({ phrase }: { phrase: string }) {
+export function NumbersHighlighter({ phrase }: { phrase: string }) {
   const parts = phrase.split(/(\d+)/);
   return (
     <div>
