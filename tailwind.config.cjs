@@ -9,6 +9,7 @@ module.exports = {
         text: '#243149',
         darker: '#e6ebef',
         highlight: '#175DDC',
+        border: '#9CA6B8',
       },
       keyframes: {
         slideDownAndFade: {

@@ -1,9 +1,11 @@
-import Layout from '@/components/layout';
-import { StorageProvider } from '@/stores/storage';
-import '@/styles/globals.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+
+import Layout from '@/components/layout';
+import { StorageProvider } from '@/stores/storage';
+
+import '@/styles/globals.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {

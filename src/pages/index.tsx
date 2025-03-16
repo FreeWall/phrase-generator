@@ -1,13 +1,21 @@
+import { round } from 'lodash-es';
+import Slider from 'rc-slider';
+import { Fragment, useEffect, useState } from 'react';
+
 import Button from '@/components/ui/button';
+import { HighlightNumbers } from '@/components/ui/highlightNumbers';
 import { TextTransition } from '@/components/ui/textTransition';
-import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
 import {
   DefinitionCategoryColors,
   toDefinitions,
 } from '@/utils/words/definitions';
-import { generatePhrase, Phrase, Word } from '@/utils/words/words';
-import { round } from 'lodash-es';
-import { Fragment, useEffect, useState } from 'react';
+import { passwordize } from '@/utils/words/passwordize';
+import {
+  Phrase,
+  Word,
+  generatePhrase,
+  phraseToString,
+} from '@/utils/words/words';
 
 export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -99,7 +107,7 @@ export default function Index() {
               <TextTransition
                 translateValue="0%"
                 inline
-                className="group/words hover:text-highlight!"
+                className="group/words hover:text-highlight"
               >
                 {words.map((word, idx) => (
                   <div
@@ -131,81 +139,6 @@ export default function Index() {
     );
   }
 
-  function phraseToString(phrase: Phrase): string {
-    return phrase
-      .map(({ words }) => words.map((word) => word.value).join(' '))
-      .join(' ');
-  }
-
-  function passwordize(
-    phrase: string,
-    options?: {
-      numbers?: number;
-      firstLetter?: 'randomize' | 'lowercase' | 'uppercase';
-      diacritics?: boolean;
-    },
-  ) {
-    const {
-      numbers = 1,
-      firstLetter = 'randomize',
-      diacritics = true,
-    } = options || {};
-    const words = phrase
-      .split(' ')
-      .map((word) => {
-        if (firstLetter == 'randomize') {
-          return ''
-            .concat(
-              getRandomBoolean()
-                ? word.charAt(0).toUpperCase()
-                : word.charAt(0),
-            )
-            .concat(word.slice(1));
-        }
-        if (firstLetter == 'lowercase') {
-          return ''.concat(word.charAt(0).toLowerCase()).concat(word.slice(1));
-        }
-        if (firstLetter == 'uppercase') {
-          return ''.concat(word.charAt(0).toUpperCase()).concat(word.slice(1));
-        }
-
-        return word;
-      })
-      .map((word) =>
-        diacritics
-          ? word
-          : word.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
-      );
-
-    for (let i = 0; i < numbers; i++) {
-      const idx = getRandomNumber(0, words.length - 1);
-      const num = getRandomNumber(0, 9);
-      words[idx] = words[idx]!.concat(num.toString());
-    }
-
-    return words.join('');
-  }
-
-  function highlightNumbers(phrase: string) {
-    const parts = phrase.split(/(\d+)/);
-    return (
-      <div>
-        {parts.map((part, idx) =>
-          /^\d+$/.test(part) ? (
-            <span
-              key={idx}
-              className="text-highlight"
-            >
-              {part}
-            </span>
-          ) : (
-            <span key={idx}>{part}</span>
-          ),
-        )}
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="flex flex-col gap-10 xl:flex-row">
@@ -220,18 +153,42 @@ export default function Index() {
         >
           Generovat
         </Button>
-        <div className="group/phrase bg-darker space-y-2 rounded-lg px-6 py-6 text-2xl font-medium select-none">
+        <div className="group/phrase bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
           {phrase && renderPhrase(phrase)}
         </div>
-        <div className="bg-darker space-y-2 rounded-lg px-6 py-6 text-2xl font-medium select-none">
-          {phrase &&
-            highlightNumbers(
-              passwordize(phraseToString(phrase), {
+        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
+          {phrase && (
+            <HighlightNumbers
+              phrase={passwordize(phraseToString(phrase), {
                 numbers: 2,
                 firstLetter: 'randomize',
                 diacritics: true,
-              }),
-            )}
+              })}
+            />
+          )}
+        </div>
+        <div className="w-[220px]">
+          <Slider
+            min={2}
+            max={5}
+            step={1}
+            dots
+            className="relative w-full touch-none select-none"
+            classNames={{
+              handle:
+                /** @tw */ 'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab',
+              track: /** @tw */ 'absolute h-2 bg-text rounded-full',
+              rail: /** @tw */ 'absolute w-full h-2 bg-darker rounded-full',
+            }}
+            onChange={(values) => {}}
+            onChangeComplete={(values) => {}}
+            styles={{
+              track: {},
+            }}
+            activeDotStyle={{
+              border: 'none',
+            }}
+          />
         </div>
       </div>
     </div>

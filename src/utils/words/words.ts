@@ -1,9 +1,9 @@
 import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
 import {
-  Definitions,
   DefinitionGroup,
   DefinitionTuple,
   DefinitionValue,
+  Definitions,
   getDefinitionParam,
 } from '@/utils/words/definitions';
 
@@ -160,4 +160,10 @@ export function findWord(
 export function generatePhrase(words: Word[], presetName: PresetName): Phrase {
   const preset = presets[presetName];
   return preset().map((generate) => ({ words: generate(words), generate }));
+}
+
+export function phraseToString(phrase: Phrase): string {
+  return phrase
+    .map(({ words }) => words.map((word) => word.value).join(' '))
+    .join(' ');
 }

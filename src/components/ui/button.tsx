@@ -1,12 +1,13 @@
-import { cn } from '@/utils/utils';
 import React, { ButtonHTMLAttributes } from 'react';
 import { CgSpinner } from 'react-icons/cg';
+
+import { cn } from '@/utils/utils';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   loading?: boolean;
   disabled?: boolean;
-  color?: 'main' | 'red';
+  color?: 'main';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -24,14 +25,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          'relative flex items-center rounded-full p-3.5 px-5 text-sm font-bold text-white uppercase transition-[padding] duration-300 select-none',
+          'relative flex cursor-pointer items-center rounded-full p-3.5 px-5 text-sm font-bold text-white uppercase transition-[padding] duration-300 select-none',
           {
             'bg-highlight hover:bg-highlight hover:brightness-90 active:brightness-75':
               color == 'main',
-            'bg-red-500 hover:bg-red-600': color == 'red',
             'pointer-events-none pr-12': loading,
             'bg-highlight brightness-90': loading && color == 'main',
-            'bg-red-500 brightness-90': loading && color == 'red',
             'bg-highlight pointer-events-none contrast-50': disabled,
           },
           className,

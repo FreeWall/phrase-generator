@@ -46,9 +46,9 @@ export const DefinitionValue = {
 } as const;
 
 export const DefinitionCategoryColors = {
-  [DefinitionValue.CATEGORY.NOUN]: '#638500',
-  [DefinitionValue.CATEGORY.ADJECTIVE]: '#996b00',
-  [DefinitionValue.CATEGORY.VERB]: '#8d2c2c',
+  [DefinitionValue.CATEGORY.NOUN]: '#5a7800',
+  [DefinitionValue.CATEGORY.ADJECTIVE]: '#c77000',
+  [DefinitionValue.CATEGORY.VERB]: '#970091',
 };
 
 const definitions = {
@@ -93,13 +93,6 @@ export function getDefinitionParam<
   K extends keyof (typeof definitions)[T],
 >(group: T, value: K): DefinitionTuple<T> {
   return [group, value];
-}
-
-export function getDefinition<T extends DefinitionGroup>(
-  definitions: Definitions<T>,
-  group: T,
-) {
-  return definitions[group];
 }
 
 export function toDefinitions(content: string): Definitions {
