@@ -9,7 +9,7 @@ interface LayoutProps extends React.PropsWithChildren {}
 export default function Layout(props: LayoutProps) {
   return (
     <div className="flex min-h-full w-full flex-col">
-      <div className="sticky top-0 z-40 flex items-center justify-between bg-white px-4 py-2 shadow dark:shadow-none">
+      <div className="sticky top-0 z-40 flex items-center justify-between bg-white px-4 py-2 shadow-sm dark:shadow-none">
         <div className="flex items-center gap-4 px-2">
           <div className="text-lg font-medium">Phrase generator</div>
         </div>
@@ -20,7 +20,7 @@ export default function Layout(props: LayoutProps) {
           <Link
             href={publicRuntimeConfig?.repository}
             target="_blank"
-            className="cursor-pointer select-none rounded-full p-3.5 hover:bg-[#f4f4f4]"
+            className="cursor-pointer rounded-full p-3.5 select-none hover:bg-[#f4f4f4]"
           >
             <FaGithub className="h-5 w-5" />
           </Link>

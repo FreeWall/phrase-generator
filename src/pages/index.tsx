@@ -99,12 +99,12 @@ export default function Index() {
               <TextTransition
                 translateValue="0%"
                 inline
-                className="group/words hover:!text-highlight"
+                className="group/words hover:text-highlight!"
               >
                 {words.map((word, idx) => (
                   <div
                     key={idx}
-                    className="inline group-hover/words:inline group-hover/phrase:hidden"
+                    className="inline group-hover/phrase:hidden group-hover/words:inline"
                   >
                     {word.value}
                     {idx < words.length - 1 ? ' ' : ''}
@@ -220,10 +220,10 @@ export default function Index() {
         >
           Generovat
         </Button>
-        <div className="group/phrase select-none space-y-2 rounded-lg bg-darker px-6 py-6 text-2xl font-medium">
+        <div className="group/phrase bg-darker space-y-2 rounded-lg px-6 py-6 text-2xl font-medium select-none">
           {phrase && renderPhrase(phrase)}
         </div>
-        <div className="select-none space-y-2 rounded-lg bg-darker px-6 py-6 text-2xl font-medium">
+        <div className="bg-darker space-y-2 rounded-lg px-6 py-6 text-2xl font-medium select-none">
           {phrase &&
             highlightNumbers(
               passwordize(phraseToString(phrase), {
