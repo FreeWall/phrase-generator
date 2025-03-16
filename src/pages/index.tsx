@@ -1,15 +1,19 @@
 import Button from '@/components/ui/button';
+import { TextTransition } from '@/components/ui/textTransition';
 import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
-import { toDefinitions } from '@/utils/words/definitions';
-import { generatePhrase, Word } from '@/utils/words/words';
+import {
+  DefinitionCategoryColors,
+  toDefinitions,
+} from '@/utils/words/definitions';
+import { generatePhrase, Phrase, Word } from '@/utils/words/words';
 import { round } from 'lodash-es';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
-  const [words, setWords] = useState<Word[]>([]);
-  const [phrases, setPhrases] = useState<string[]>([]);
+  const [wordList, setWordList] = useState<Word[]>([]);
+  const [phrase, setPhrase] = useState<Phrase>();
 
   useEffect(() => {
     (async () => {
@@ -63,42 +67,143 @@ export default function Index() {
         }),
       );
 
-      setWords(words);
+      setWordList(words);
     })();
   }, []);
 
   function generatePhrases() {
     (async () => {
       console.time('generatePhrases');
-      setPhrases([]);
-      Array.from({ length: 15 }).forEach(() => {
-        const phrase = generatePhrase(words, 'short')
-          .map((word) => word.value)
-          .join(' ');
-
-        setPhrases((prev) => [...prev, phrase]);
-      });
+      const phrase = generatePhrase(wordList, 'longest');
+      setPhrase(phrase);
       console.timeEnd('generatePhrases');
     })();
   }
 
-  function passwordize(phrase: string) {
-    const words = phrase.split(' ');
-    const numberAfter = getRandomNumber(0, words.length - 1);
-    return words.map((word, idx) => (
-      <div
-        key={idx}
-        className="inline"
-      >
-        {getRandomBoolean() ? word[0]?.toUpperCase() : word[0]}
-        {word.slice(1)}
-        {numberAfter == idx ? (
-          <div className="inline text-highlight">{getRandomNumber(0, 9)}</div>
-        ) : (
-          ''
+  function renderPhrase(phrase: Phrase) {
+    return (
+      <div>
+        {phrase.map(({ words, generate }, idx) => (
+          <Fragment key={idx}>
+            <div
+              key={idx}
+              className="inline cursor-pointer"
+              onClick={() =>
+                setPhrase((prev) => {
+                  const newPhrase = [...(prev ?? [])];
+                  newPhrase[idx]!.words = generate(wordList);
+                  return newPhrase;
+                })
+              }
+            >
+              <TextTransition
+                translateValue="0%"
+                inline
+                className="group/words hover:!text-highlight"
+              >
+                {words.map((word, idx) => (
+                  <div
+                    key={idx}
+                    className="inline group-hover/words:inline group-hover/phrase:hidden"
+                  >
+                    {word.value}
+                    {idx < words.length - 1 ? ' ' : ''}
+                  </div>
+                ))}
+                {words.map((word, idx) => (
+                  <div
+                    key={idx}
+                    className="hidden group-hover/phrase:inline group-hover/words:hidden"
+                    style={{
+                      color: DefinitionCategoryColors[word.definitions.k],
+                    }}
+                  >
+                    {word.value}
+                    {idx < words.length - 1 ? ' ' : ''}
+                  </div>
+                ))}
+              </TextTransition>
+            </div>
+            {idx < phrase.length - 1 ? ' ' : ''}
+          </Fragment>
+        ))}
+      </div>
+    );
+  }
+
+  function phraseToString(phrase: Phrase): string {
+    return phrase
+      .map(({ words }) => words.map((word) => word.value).join(' '))
+      .join(' ');
+  }
+
+  function passwordize(
+    phrase: string,
+    options?: {
+      numbers?: number;
+      firstLetter?: 'randomize' | 'lowercase' | 'uppercase';
+      diacritics?: boolean;
+    },
+  ) {
+    const {
+      numbers = 1,
+      firstLetter = 'randomize',
+      diacritics = true,
+    } = options || {};
+    const words = phrase
+      .split(' ')
+      .map((word) => {
+        if (firstLetter == 'randomize') {
+          return ''
+            .concat(
+              getRandomBoolean()
+                ? word.charAt(0).toUpperCase()
+                : word.charAt(0),
+            )
+            .concat(word.slice(1));
+        }
+        if (firstLetter == 'lowercase') {
+          return ''.concat(word.charAt(0).toLowerCase()).concat(word.slice(1));
+        }
+        if (firstLetter == 'uppercase') {
+          return ''.concat(word.charAt(0).toUpperCase()).concat(word.slice(1));
+        }
+
+        return word;
+      })
+      .map((word) =>
+        diacritics
+          ? word
+          : word.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+      );
+
+    for (let i = 0; i < numbers; i++) {
+      const idx = getRandomNumber(0, words.length - 1);
+      const num = getRandomNumber(0, 9);
+      words[idx] = words[idx]!.concat(num.toString());
+    }
+
+    return words.join('');
+  }
+
+  function highlightNumbers(phrase: string) {
+    const parts = phrase.split(/(\d+)/);
+    return (
+      <div>
+        {parts.map((part, idx) =>
+          /^\d+$/.test(part) ? (
+            <span
+              key={idx}
+              className="text-highlight"
+            >
+              {part}
+            </span>
+          ) : (
+            <span key={idx}>{part}</span>
+          ),
         )}
       </div>
-    ));
+    );
   }
 
   return (
@@ -108,23 +213,25 @@ export default function Index() {
         {round(totalLength / 1024 / 1024, 1)} MB
       </div>
       <div className="space-y-4">
-        <div>{words.length.toLocaleString(undefined, {})} words</div>
+        <div>{wordList.length.toLocaleString(undefined, {})} words</div>
         <Button
           onClick={generatePhrases}
-          disabled={!words.length}
+          disabled={!wordList.length}
         >
           Generovat
         </Button>
-        <div className="space-y-2 bg-darker px-4 py-4 text-2xl">
-          {phrases.map((phrase) => (
-            <div
-              key={phrase}
-              className="flex"
-            >
-              <div className="w-1/2">{phrase}</div>
-              <div className="">{passwordize(phrase)}</div>
-            </div>
-          ))}
+        <div className="group/phrase select-none space-y-2 rounded-lg bg-darker px-6 py-6 text-2xl font-medium">
+          {phrase && renderPhrase(phrase)}
+        </div>
+        <div className="select-none space-y-2 rounded-lg bg-darker px-6 py-6 text-2xl font-medium">
+          {phrase &&
+            highlightNumbers(
+              passwordize(phraseToString(phrase), {
+                numbers: 2,
+                firstLetter: 'randomize',
+                diacritics: true,
+              }),
+            )}
         </div>
       </div>
     </div>

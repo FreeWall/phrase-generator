@@ -32,7 +32,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             'pointer-events-none pr-12': loading,
             'bg-highlight brightness-90': loading && color == 'main',
             'bg-red-500 brightness-90': loading && color == 'red',
-            'pointer-events-none bg-conversionHover brightness-[0.7]': disabled,
+            'pointer-events-none bg-highlight contrast-50': disabled,
           },
           className,
         )}
@@ -42,7 +42,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
         <CgSpinner
           className={cn(
-            'absolute right-4 animate-spin text-body transition-[opacity] duration-300',
+            'text-body absolute right-4 animate-spin transition-[opacity] duration-300',
             {
               'opacity-100': loading,
               'opacity-0': !loading,

@@ -13,7 +13,7 @@ export const DefinitionValue = {
     NOUN: 1,
     ADJECTIVE: 2,
     VERB: 5,
-    ADVERB: 6,
+    // ADVERB: 6,
   },
   GENDER: {
     FEMININE: 'F',
@@ -45,12 +45,18 @@ export const DefinitionValue = {
   },
 } as const;
 
+export const DefinitionCategoryColors = {
+  [DefinitionValue.CATEGORY.NOUN]: '#638500',
+  [DefinitionValue.CATEGORY.ADJECTIVE]: '#996b00',
+  [DefinitionValue.CATEGORY.VERB]: '#8d2c2c',
+};
+
 const definitions = {
   k: {
     1: 'podstatné meno',
     2: 'prídavné meno',
     5: 'sloveso',
-    6: 'příslovce',
+    // 6: 'příslovce',
   },
   g: {
     F: 'ženský',

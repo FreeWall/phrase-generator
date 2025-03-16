@@ -20,7 +20,7 @@ export default function Layout(props: LayoutProps) {
           <Link
             href={publicRuntimeConfig?.repository}
             target="_blank"
-            className="cursor-pointer select-none rounded-full p-3.5 hover:bg-[#f4f4f4] dark:hover:bg-lighter"
+            className="cursor-pointer select-none rounded-full p-3.5 hover:bg-[#f4f4f4]"
           >
             <FaGithub className="h-5 w-5" />
           </Link>

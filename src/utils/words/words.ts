@@ -10,6 +10,10 @@ import {
 export type Word = { value: string; definitions: Definitions };
 
 type PresetName = keyof typeof presets;
+export type Phrase = {
+  words: Word[];
+  generate: (words: Word[]) => Word[];
+}[];
 
 const presets = {
   short: () => {
@@ -153,9 +157,7 @@ export function findWord(
   return word;
 }
 
-export function generatePhrase(words: Word[], presetName: PresetName) {
+export function generatePhrase(words: Word[], presetName: PresetName): Phrase {
   const preset = presets[presetName];
-  return preset()
-    .map((fn) => fn(words))
-    .flat();
+  return preset().map((generate) => ({ words: generate(words), generate }));
 }
