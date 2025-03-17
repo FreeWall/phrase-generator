@@ -4,10 +4,15 @@ import {
   DefinitionTuple,
   DefinitionValue,
   Definitions,
-  getDefinitionParam,
+  getDefinitionTuple,
 } from '@/utils/words/definitions';
 
-export type Word = { value: string; definitions: Definitions };
+export type Word = {
+  name: string;
+  value: string;
+  definitions: Definitions;
+  def: string;
+};
 
 type PresetName = keyof typeof presets;
 export type Phrase = {
@@ -15,42 +20,45 @@ export type Phrase = {
   generate: (words: Word[]) => Word[];
 }[];
 
+// k12
+// c1, c4
+
 const presets = {
   short: () => {
     const variant = getRandomBoolean() ? 'variant1' : 'variant2';
     if (variant === 'variant1') {
       return [
         (words: Word[]) => {
-          const adjective = findWord(words, [
-            getDefinitionParam('k', DefinitionValue.CATEGORY.ADJECTIVE),
-            getDefinitionParam('c', DefinitionValue.CASE.NOMINATIVE),
+          const noun = findWord(words, [
+            getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+            getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
           ]);
 
-          const noun = findWord(words, [
-            getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-            getDefinitionParam('g', adjective?.definitions.g),
-            getDefinitionParam('n', adjective?.definitions.n),
-            getDefinitionParam('c', adjective?.definitions.c),
+          const adjective = findWord(words, [
+            getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
+            getDefinitionTuple('g', noun.definitions.g),
+            getDefinitionTuple('n', noun.definitions.n),
+            getDefinitionTuple('c', noun.definitions.c),
           ]);
 
           const verb = getRandomBoolean()
             ? findWord(words, [
-                getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-                getDefinitionParam('g', noun.definitions.g),
-                getDefinitionParam('n', noun.definitions.n),
+                getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+                getDefinitionTuple('g', noun.definitions.g),
+                getDefinitionTuple('n', noun.definitions.n),
               ])
             : findWord(words, [
-                getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-                getDefinitionParam('p', DefinitionValue.PERSON.THIRD_PERSON),
-                getDefinitionParam('n', noun.definitions.n),
+                getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+                getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
+                getDefinitionTuple('n', noun.definitions.n),
               ]);
 
           return [adjective, noun, verb];
         },
         (words: Word[]) => {
           const noun = findWord(words, [
-            getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-            getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
+            getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+            getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
           ]);
 
           return [noun];
@@ -61,35 +69,35 @@ const presets = {
     return [
       (words: Word[]) => {
         const noun = findWord(words, [
-          getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionParam('c', DefinitionValue.CASE.NOMINATIVE),
+          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+          getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
         ]);
 
         const verb = getRandomBoolean()
           ? findWord(words, [
-              getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionParam('g', noun.definitions.g),
-              getDefinitionParam('n', noun.definitions.n),
+              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+              getDefinitionTuple('g', noun.definitions.g),
+              getDefinitionTuple('n', noun.definitions.n),
             ])
           : findWord(words, [
-              getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionParam('p', DefinitionValue.PERSON.THIRD_PERSON),
-              getDefinitionParam('n', noun.definitions.n),
+              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+              getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
+              getDefinitionTuple('n', noun.definitions.n),
             ]);
 
         return [noun, verb];
       },
       (words: Word[]) => {
-        const adjective = findWord(words, [
-          getDefinitionParam('k', DefinitionValue.CATEGORY.ADJECTIVE),
-          getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
+        const noun = findWord(words, [
+          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+          getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
         ]);
 
-        const noun = findWord(words, [
-          getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionParam('c', adjective.definitions.c),
-          getDefinitionParam('g', adjective.definitions.g),
-          getDefinitionParam('n', adjective.definitions.n),
+        const adjective = findWord(words, [
+          getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
+          getDefinitionTuple('g', noun.definitions.g),
+          getDefinitionTuple('n', noun.definitions.n),
+          getDefinitionTuple('c', noun.definitions.c),
         ]);
 
         return [adjective, noun];
@@ -98,43 +106,43 @@ const presets = {
   },
   longest: () => [
     (words: Word[]) => {
-      const adjective = findWord(words, [
-        getDefinitionParam('k', DefinitionValue.CATEGORY.ADJECTIVE),
-        getDefinitionParam('c', DefinitionValue.CASE.NOMINATIVE),
+      const noun = findWord(words, [
+        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+        getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
       ]);
 
-      const noun = findWord(words, [
-        getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionParam('g', adjective?.definitions.g),
-        getDefinitionParam('n', adjective?.definitions.n),
-        getDefinitionParam('c', adjective?.definitions.c),
+      const adjective = findWord(words, [
+        getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
+        getDefinitionTuple('g', noun.definitions.g),
+        getDefinitionTuple('n', noun.definitions.n),
+        getDefinitionTuple('c', noun.definitions.c),
       ]);
 
       const verb = getRandomBoolean()
         ? findWord(words, [
-            getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-            getDefinitionParam('g', noun.definitions.g),
-            getDefinitionParam('n', noun.definitions.n),
+            getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+            getDefinitionTuple('g', noun.definitions.g),
+            getDefinitionTuple('n', noun.definitions.n),
           ])
         : findWord(words, [
-            getDefinitionParam('k', DefinitionValue.CATEGORY.VERB),
-            getDefinitionParam('p', DefinitionValue.PERSON.THIRD_PERSON),
-            getDefinitionParam('n', noun.definitions.n),
+            getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
+            getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
+            getDefinitionTuple('n', noun.definitions.n),
           ]);
 
       return [adjective, noun, verb];
     },
     (words: Word[]) => {
-      const adjective = findWord(words, [
-        getDefinitionParam('k', DefinitionValue.CATEGORY.ADJECTIVE),
-        getDefinitionParam('c', DefinitionValue.CASE.ACCUSATIVE),
+      const noun = findWord(words, [
+        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
+        getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
       ]);
 
-      const noun = findWord(words, [
-        getDefinitionParam('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionParam('c', adjective.definitions.c),
-        getDefinitionParam('g', adjective.definitions.g),
-        getDefinitionParam('n', adjective.definitions.n),
+      const adjective = findWord(words, [
+        getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
+        getDefinitionTuple('g', noun.definitions.g),
+        getDefinitionTuple('n', noun.definitions.n),
+        getDefinitionTuple('c', noun.definitions.c),
       ]);
 
       return [adjective, noun];

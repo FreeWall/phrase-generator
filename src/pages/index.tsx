@@ -26,10 +26,10 @@ export default function Index() {
   useEffect(() => {
     (async () => {
       const wordlists = [
+        '/assets/words/cs/k1.txt',
+        '/assets/words/cs/k2.txt',
         '/assets/words/cs/k5-min.txt',
         '/assets/words/cs/k5-prit.txt',
-        '/assets/words/cs/k6.txt',
-        '/assets/words/cs/k12.txt',
       ];
       setTotalLength(0);
       setLoadingProgress(0);
@@ -62,18 +62,31 @@ export default function Index() {
 
           for (const line of lines) {
             const parts = line.split(':');
+            const name = parts[0];
             const word = parts[1];
             const definitions = parts[2];
-            if (!word || !definitions) {
+            if (!name || !word || !definitions) {
               return;
             }
             words.push({
+              name: name,
               value: word,
               definitions: toDefinitions(definitions),
+              def: definitions,
             });
           }
         }),
       );
+
+      const newwords = words.filter(
+        (word) =>
+          word.definitions.k === '1' &&
+          (word.definitions.c === '1' || word.definitions.c === '4'),
+      );
+      const content = newwords
+        .map((word) => `${word.name}:${word.value}:${word.def}`)
+        .join('\n');
+      // console.log(content);
 
       setWordList(words);
     })();
@@ -82,8 +95,10 @@ export default function Index() {
   function generatePhrases() {
     (async () => {
       console.time('generatePhrases');
-      const phrase = generatePhrase(wordList, 'longest');
-      setPhrase(phrase);
+      for (let i = 0; i < 15; i++) {
+        const phrase = generatePhrase(wordList, 'longest');
+        setPhrase(phrase);
+      }
       console.timeEnd('generatePhrases');
     })();
   }

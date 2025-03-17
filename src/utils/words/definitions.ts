@@ -88,11 +88,18 @@ const definitions = {
   },
 } as const;
 
-export function getDefinitionParam<
+export function getDefinitionTuple<
   T extends DefinitionGroup,
   K extends keyof (typeof definitions)[T],
 >(group: T, value: K): DefinitionTuple<T> {
   return [group, value];
+}
+
+export function getDefinition<T extends DefinitionGroup>(
+  definitions: Definitions,
+  group: T,
+): Definitions<T>[T] {
+  return definitions[group];
 }
 
 export function toDefinitions(content: string): Definitions {
