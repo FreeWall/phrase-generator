@@ -1,3 +1,4 @@
+import { useForm } from '@tanstack/react-form';
 import { round } from 'lodash-es';
 import { Fragment, useEffect, useState } from 'react';
 
@@ -21,7 +22,20 @@ export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
+  const [longestWordLength, setLongestWordLength] = useState(0);
   const [phrase, setPhrase] = useState<Phrase>();
+
+  const form = useForm({
+    onSubmit: async ({ value }) => {
+      console.log(value);
+      generatePhrases();
+    },
+
+    defaultValues: {
+      phraseLength: 2,
+      maxWordLength: longestWordLength,
+    },
+  });
 
   useEffect(() => {
     (async () => {
@@ -75,18 +89,21 @@ export default function Index() {
       );
 
       setWordList(words);
+
+      const longestWord = words.reduce((prev, curr) =>
+        prev.value.length > curr.value.length ? prev : curr,
+      );
+      setLongestWordLength(longestWord.value.length);
     })();
   }, []);
 
   function generatePhrases() {
-    (async () => {
-      console.time('generatePhrases');
-      for (let i = 0; i < 15; i++) {
-        const phrase = generatePhrase(wordList, 'longest');
-        setPhrase(phrase);
-      }
-      console.timeEnd('generatePhrases');
-    })();
+    console.time('generatePhrases');
+
+    const phrase = generatePhrase(wordList, 'longest');
+    setPhrase(phrase);
+
+    console.timeEnd('generatePhrases');
   }
 
   function renderPhrase(phrase: Phrase) {
@@ -146,7 +163,7 @@ export default function Index() {
         {round(loadingProgress / 1024 / 1024, 1)} MB /{' '}
         {round(totalLength / 1024 / 1024, 1)} MB
       </div>
-      <div className="space-y-4">
+      <div className="w-[800px] space-y-4">
         <div>{wordList.length.toLocaleString(undefined, {})} words</div>
         <Button
           onClick={generatePhrases}
@@ -168,8 +185,39 @@ export default function Index() {
             />
           )}
         </div>
-        <div className="w-[220px]">
-          <Slider />
+        <div className="flex gap-8">
+          <form.Field
+            name="phraseLength"
+            children={(field) => (
+              <Slider
+                className="w-full"
+                label={<div>Délka fráze: {field.state.value} slov</div>}
+                min={2}
+                max={5}
+                value={field.state.value}
+                onChange={(value) => {
+                  field.handleChange(value);
+                  form.handleSubmit();
+                }}
+              />
+            )}
+          />
+          <form.Field
+            name="maxWordLength"
+            children={(field) => (
+              <Slider
+                className="w-full"
+                label={<div>Max. délka slova: {field.state.value} znaků</div>}
+                min={3}
+                max={longestWordLength}
+                value={field.state.value}
+                onChange={(value) => {
+                  field.handleChange(value);
+                  form.handleSubmit();
+                }}
+              />
+            )}
+          />
         </div>
       </div>
     </div>
