@@ -1,4 +1,4 @@
-import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
+import { getRandomBoolean, getRandomNumber } from '@/utils/random';
 import {
   DefinitionGroup,
   DefinitionTuple,
@@ -8,10 +8,8 @@ import {
 } from '@/utils/words/definitions';
 
 export type Word = {
-  name: string;
   value: string;
   definitions: Definitions;
-  def: string;
 };
 
 type PresetName = keyof typeof presets;
@@ -19,9 +17,6 @@ export type Phrase = {
   words: Word[];
   generate: (words: Word[]) => Word[];
 }[];
-
-// k12
-// c1, c4
 
 const presets = {
   short: () => {

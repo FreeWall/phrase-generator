@@ -1,4 +1,4 @@
-import { getRandomBoolean, getRandomNumber } from '@/utils/utils';
+import { getRandomBoolean, getRandomNumber } from '@/utils/random';
 
 export function passwordize(
   phrase: string,
@@ -38,8 +38,7 @@ export function passwordize(
 
   for (let i = 0; i < numbers; i++) {
     const idx = getRandomNumber(0, words.length - 1);
-    const num = getRandomNumber(0, 9);
-    words[idx] = words[idx]!.concat(num.toString());
+    words[idx] = words[idx]!.concat(getRandomNumber(0, 9).toString());
   }
 
   return words.join('');

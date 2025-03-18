@@ -7,6 +7,7 @@ import { NumbersHighlighter } from '@/components/ui/numbersHighlighter';
 import { TextTransition } from '@/components/ui/textTransition';
 import {
   DefinitionCategoryColors,
+  toDefinitionString,
   toDefinitions,
 } from '@/utils/words/definitions';
 import { passwordize } from '@/utils/words/passwordize';
@@ -28,8 +29,7 @@ export default function Index() {
       const wordlists = [
         '/assets/words/cs/k1.txt',
         '/assets/words/cs/k2.txt',
-        '/assets/words/cs/k5-min.txt',
-        '/assets/words/cs/k5-prit.txt',
+        '/assets/words/cs/k5.txt',
       ];
       setTotalLength(0);
       setLoadingProgress(0);
@@ -62,31 +62,30 @@ export default function Index() {
 
           for (const line of lines) {
             const parts = line.split(':');
-            const name = parts[0];
-            const word = parts[1];
-            const definitions = parts[2];
-            if (!name || !word || !definitions) {
+            const word = parts[0];
+            const definitions = parts[1];
+            if (!word || !definitions) {
               return;
             }
             words.push({
-              name: name,
               value: word,
               definitions: toDefinitions(definitions),
-              def: definitions,
             });
           }
         }),
       );
 
-      const newwords = words.filter(
+      /* const newwords = words.filter(
         (word) =>
-          word.definitions.k === '1' &&
-          (word.definitions.c === '1' || word.definitions.c === '4'),
+          word.definitions.k === '5' &&
+          ((word.definitions.m === 'I' && word.definitions.p === '3') ||
+            word.definitions.m === 'A'),
       );
       const content = newwords
-        .map((word) => `${word.name}:${word.value}:${word.def}`)
+        .filter((word) => toDefinitionString(word.definitions).length > 4)
+        .map((word) => `${word.value}:${toDefinitionString(word.definitions)}`)
         .join('\n');
-      // console.log(content);
+      console.log(content); */
 
       setWordList(words);
     })();

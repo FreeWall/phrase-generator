@@ -78,8 +78,8 @@ const definitions = {
     7: 'inštrumentál',
   },
   m: {
-    A: 'pritomne',
-    I: 'minule',
+    A: 'minule',
+    I: 'pritomne',
   },
   p: {
     1: 'prvá osoba',
@@ -112,4 +112,10 @@ export function toDefinitions(content: string): Definitions {
     }
   }
   return definition;
+}
+
+export function toDefinitionString(definitions: Definitions): string {
+  return Object.entries(definitions)
+    .map(([group, value]) => `${group}${value}`)
+    .join('');
 }
