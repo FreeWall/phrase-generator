@@ -41,10 +41,11 @@
         "newlines-between": "always",
         "alphabetize": { "order": "asc" }
       }
-    ]
+    ],
+    "unused-imports/no-unused-imports": "warn"
   },
   "ignorePatterns": ["**/*.js"],
-  "plugins": ["@typescript-eslint", "import"],
+  "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
   "settings": {
     "import/resolver": {

@@ -1,8 +1,5 @@
-import { useEffect } from 'react';
 import { combine } from 'zustand/middleware';
 import { createWithEqualityFn as create } from 'zustand/traditional';
-
-import { Setter, createSetter } from '@/utils/zustand';
 
 const storageKey = 'phrase-generator';
 

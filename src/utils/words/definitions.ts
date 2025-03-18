@@ -113,9 +113,3 @@ export function toDefinitions(content: string): Definitions {
   }
   return definition;
 }
-
-export function toDefinitionString(definitions: Definitions): string {
-  return Object.entries(definitions)
-    .map(([group, value]) => `${group}${value}`)
-    .join('');
-}
