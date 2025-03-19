@@ -27,13 +27,13 @@ export default function Index() {
 
   const form = useForm({
     onSubmit: async ({ value }) => {
-      console.log(value);
       generatePhrases();
     },
 
     defaultValues: {
-      phraseLength: 2,
+      phraseLength: 5,
       maxWordLength: longestWordLength,
+      numbers: 1,
     },
   });
 
@@ -98,12 +98,8 @@ export default function Index() {
   }, []);
 
   function generatePhrases() {
-    console.time('generatePhrases');
-
     const phrase = generatePhrase(wordList, 'longest');
     setPhrase(phrase);
-
-    console.timeEnd('generatePhrases');
   }
 
   function renderPhrase(phrase: Phrase) {
@@ -178,7 +174,7 @@ export default function Index() {
           {phrase && (
             <NumbersHighlighter
               phrase={passwordize(phraseToString(phrase), {
-                numbers: 2,
+                numbers: form.state.values.numbers,
                 firstLetter: 'randomize',
                 diacritics: true,
               })}
@@ -186,14 +182,14 @@ export default function Index() {
           )}
         </div>
         <div className="flex gap-8">
-          <form.Field
-            name="phraseLength"
-            children={(field) => (
+          <form.Field name="phraseLength">
+            {(field) => (
               <Slider
                 className="w-full"
                 label={<div>Délka fráze: {field.state.value} slov</div>}
                 min={2}
                 max={5}
+                disabled
                 value={field.state.value}
                 onChange={(value) => {
                   field.handleChange(value);
@@ -201,10 +197,9 @@ export default function Index() {
                 }}
               />
             )}
-          />
-          <form.Field
-            name="maxWordLength"
-            children={(field) => (
+          </form.Field>
+          <form.Field name="maxWordLength">
+            {(field) => (
               <Slider
                 className="w-full"
                 label={<div>Max. délka slova: {field.state.value} znaků</div>}
@@ -217,7 +212,22 @@ export default function Index() {
                 }}
               />
             )}
-          />
+          </form.Field>
+          <form.Field name="numbers">
+            {(field) => (
+              <Slider
+                className="w-full"
+                label={<div>Počet číslic: {field.state.value}</div>}
+                min={0}
+                max={5}
+                value={field.state.value}
+                onChange={(value) => {
+                  field.handleChange(value);
+                  form.handleSubmit();
+                }}
+              />
+            )}
+          </form.Field>
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ interface SliderProps {
   max: number;
   value: number;
   step?: number;
+  disabled?: boolean;
   label?: ReactNode;
   className?: string;
   onChange?: (value: number) => void;
@@ -25,12 +26,16 @@ export default function Slider(props: SliderProps) {
           max={props.max}
           step={props.step}
           value={props.value}
+          disabled={props.disabled}
           className="relative h-2 w-full touch-none select-none"
           classNames={{
-            handle:
-              /** @tw */ 'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab ml-2',
-            track:
-              /** @tw */ 'absolute h-2 bg-text rounded-full pr-2 box-content',
+            handle: cn(
+              'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab ml-2',
+              { 'bg-border cursor-default': props.disabled },
+            ),
+            track: cn('absolute h-2 bg-text rounded-full pr-2 box-content', {
+              'bg-border': props.disabled,
+            }),
             rail: /** @tw */ 'absolute w-full h-2 bg-darker rounded-full box-content pr-4',
           }}
           onChange={(value) => props.onChange?.(value as number)}

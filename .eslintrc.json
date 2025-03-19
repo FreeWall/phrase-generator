@@ -10,18 +10,7 @@
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "off",
-    "react/no-children-prop": "off",
-    "no-restricted-imports": [
-      "error",
-      {
-        "paths": [
-          {
-            "name": "lodash",
-            "message": "Please use a specific lodash module, e.g. 'lodash/random'"
-          }
-        ]
-      }
-    ],
+    "unused-imports/no-unused-imports": "warn",
     "sort-imports": [
       "warn",
       {
@@ -42,8 +31,7 @@
         "newlines-between": "always",
         "alphabetize": { "order": "asc" }
       }
-    ],
-    "unused-imports/no-unused-imports": "warn"
+    ]
   },
   "ignorePatterns": ["**/*.js"],
   "plugins": ["@typescript-eslint", "import", "unused-imports"],

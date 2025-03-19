@@ -10,10 +10,10 @@ export type DefinitionTuple<T extends DefinitionGroup = DefinitionGroup> = [
 
 export const DefinitionValue = {
   CATEGORY: {
-    NOUN: 1,
-    ADJECTIVE: 2,
-    VERB: 5,
-    // ADVERB: 6,
+    NOUN: '1',
+    ADJECTIVE: '2',
+    VERB: '5',
+    // ADVERB: '6',
   },
   GENDER: {
     FEMININE: 'F',
@@ -26,22 +26,22 @@ export const DefinitionValue = {
     PLURAL: 'P',
   },
   CASE: {
-    NOMINATIVE: 1,
-    GENITIVE: 2,
-    DATIVE: 3,
-    ACCUSATIVE: 4,
-    VOCATIVE: 5,
-    LOCATIVE: 6,
-    INSTRUMENTAL: 7,
+    NOMINATIVE: '1',
+    GENITIVE: '2',
+    DATIVE: '3',
+    ACCUSATIVE: '4',
+    VOCATIVE: '5',
+    LOCATIVE: '6',
+    INSTRUMENTAL: '7',
   },
   MOOD: {
     PRESENT: 'A',
     PAST: 'I',
   },
   PERSON: {
-    FIRST_PERSON: 1,
-    SECOND_PERSON: 2,
-    THIRD_PERSON: 3,
+    FIRST_PERSON: '1',
+    SECOND_PERSON: '2',
+    THIRD_PERSON: '3',
   },
 } as const;
 
@@ -53,10 +53,10 @@ export const DefinitionCategoryColors = {
 
 const definitions = {
   k: {
-    1: 'podstatné meno',
-    2: 'prídavné meno',
-    5: 'sloveso',
-    // 6: 'příslovce',
+    '1': 'podstatné meno',
+    '2': 'prídavné meno',
+    '5': 'sloveso',
+    // '6': 'příslovce',
   },
   g: {
     F: 'ženský',
@@ -69,22 +69,22 @@ const definitions = {
     P: 'množné (plurál)',
   },
   c: {
-    1: 'nominatív',
-    2: 'genitív',
-    3: 'datív',
-    4: 'akuzatív',
-    5: 'vokatív',
-    6: 'lokál',
-    7: 'inštrumentál',
+    '1': 'nominatív',
+    '2': 'genitív',
+    '3': 'datív',
+    '4': 'akuzatív',
+    '5': 'vokatív',
+    '6': 'lokál',
+    '7': 'inštrumentál',
   },
   m: {
     A: 'minule',
     I: 'pritomne',
   },
   p: {
-    1: 'prvá osoba',
-    2: 'druhá osoba',
-    3: 'tretia osoba',
+    '1': 'prvá osoba',
+    '2': 'druhá osoba',
+    '3': 'tretia osoba',
   },
 } as const;
 
