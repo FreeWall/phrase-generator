@@ -2,14 +2,15 @@
   "name": "phrase-generator",
   "version": "0.1.0",
   "author": "FreeWall",
+  "license": "MIT",
   "repository": "https://github.com/FreeWall/phrase-generator",
   "scripts": {
-    "dev": "pnpm install && cross-env NODE_OPTIONS='--inspect' next dev",
+    "dev": "yarn && cross-env NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "export": "next export -o build && touch ./build/.nojekyll",
-    "deploy": "pnpm install && pnpm run build && pnpm run export",
-    "preinstall": "npx only-allow pnpm"
+    "deploy": "yarn && yarn build && yarn export",
+    "preinstall": "npx only-allow yarn"
   },
   "engines": {
     "node": ">=16.14"

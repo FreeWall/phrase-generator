@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 
-import Layout from '@/components/layout';
+import Layout from '@/components/Layout';
 import { StorageProvider } from '@/stores/storage';
 import '@/styles/globals.css';
 

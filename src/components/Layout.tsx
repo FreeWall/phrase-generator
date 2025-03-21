@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 import { FaGithub } from 'react-icons/fa';
 
-import Link from '@/components/ui/link';
+import Link from '@/components/ui/Link';
 
 const { publicRuntimeConfig } = getConfig();
 

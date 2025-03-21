@@ -2,10 +2,10 @@ import { useForm } from '@tanstack/react-form';
 import { round } from 'lodash-es';
 import { Fragment, useEffect, useState } from 'react';
 
-import Button from '@/components/ui/button';
-import { NumbersHighlighter } from '@/components/ui/numbersHighlighter';
-import Slider from '@/components/ui/slider';
-import { TextTransition } from '@/components/ui/textTransition';
+import Button from '@/components/ui/Button';
+import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
+import Slider from '@/components/ui/Slider';
+import { TextTransition } from '@/components/ui/TextTransition';
 import {
   DefinitionCategoryColors,
   toDefinitions,
