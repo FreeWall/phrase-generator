@@ -22,14 +22,18 @@ export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
+  const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
   const [longestWordLength, setLongestWordLength] = useState(0);
   const [phrase, setPhrase] = useState<Phrase>();
 
   const form = useForm({
     onSubmit: async ({ value }) => {
-      generatePhrases();
+      const words = wordList.filter(
+        (word) => word.value.length <= value.maxWordLength,
+      );
+      setFilteredWordList(words);
+      generatePhrases(words);
     },
-
     defaultValues: {
       phraseLength: 5,
       maxWordLength: longestWordLength,
@@ -97,8 +101,8 @@ export default function Index() {
     })();
   }, []);
 
-  function generatePhrases() {
-    const phrase = generatePhrase(wordList, 'longest');
+  function generatePhrases(words: Word[]) {
+    const phrase = generatePhrase(words, 'longest');
     setPhrase(phrase);
   }
 
@@ -113,7 +117,7 @@ export default function Index() {
               onClick={() =>
                 setPhrase((prev) => {
                   const newPhrase = [...(prev ?? [])];
-                  newPhrase[idx]!.words = generate(wordList);
+                  newPhrase[idx]!.words = generate(filteredWordList);
                   return newPhrase;
                 })
               }
@@ -153,6 +157,14 @@ export default function Index() {
     );
   }
 
+  useEffect(() => {
+    if (!wordList.length) {
+      return;
+    }
+
+    form.handleSubmit();
+  }, [form, wordList.length]);
+
   return (
     <div>
       <div className="flex flex-col gap-10 xl:flex-row">
@@ -160,9 +172,9 @@ export default function Index() {
         {round(totalLength / 1024 / 1024, 1)} MB
       </div>
       <div className="w-[800px] space-y-4">
-        <div>{wordList.length.toLocaleString(undefined, {})} words</div>
+        <div>{filteredWordList.length.toLocaleString(undefined, {})} words</div>
         <Button
-          onClick={generatePhrases}
+          onClick={() => generatePhrases(filteredWordList)}
           disabled={!wordList.length}
         >
           Generovat
@@ -219,7 +231,7 @@ export default function Index() {
                 className="w-full"
                 label={<div>Počet číslic: {field.state.value}</div>}
                 min={0}
-                max={5}
+                max={10}
                 value={field.state.value}
                 onChange={(value) => {
                   field.handleChange(value);

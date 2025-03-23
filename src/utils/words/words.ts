@@ -162,7 +162,17 @@ export function findWord(
 
 export function generatePhrase(words: Word[], presetName: PresetName): Phrase {
   const preset = presets[presetName];
-  return preset().map((generate) => ({ words: generate(words), generate }));
+  return preset().map((generate) => ({
+    words: (() => {
+      try {
+        return generate(words);
+      } catch (e) {
+        // in case of maximum call stack exceeded (rare)
+        return generate(words);
+      }
+    })(),
+    generate,
+  }));
 }
 
 export function phraseToString(phrase: Phrase): string {

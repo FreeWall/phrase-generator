@@ -30,7 +30,7 @@ export default function Slider(props: SliderProps) {
           className="relative h-2 w-full touch-none select-none"
           classNames={{
             handle: cn(
-              'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab ml-2',
+              'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab ml-2 outline-none',
               { 'bg-border cursor-default': props.disabled },
             ),
             track: cn('absolute h-2 bg-text rounded-full pr-2 box-content', {
