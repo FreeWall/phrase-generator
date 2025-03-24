@@ -12,14 +12,14 @@ export type Word = {
   definitions: Definitions;
 };
 
-type PresetName = keyof typeof presets;
+type PresetLength = keyof typeof presets;
 export type Phrase = {
   words: Word[];
   generate: (words: Word[]) => Word[];
 }[];
 
 const presets = {
-  short: () => {
+  4: () => {
     const variant = getRandomBoolean() ? 'variant1' : 'variant2';
     if (variant === 'variant1') {
       return [
@@ -99,7 +99,7 @@ const presets = {
       },
     ];
   },
-  longest: () => [
+  5: () => [
     (words: Word[]) => {
       const noun = findWord(words, [
         getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
@@ -160,8 +160,11 @@ export function findWord(
   return word;
 }
 
-export function generatePhrase(words: Word[], presetName: PresetName): Phrase {
-  const preset = presets[presetName];
+export function generatePhrase(
+  words: Word[],
+  phraseLength: PresetLength,
+): Phrase {
+  const preset = presets[phraseLength];
   return preset().map((generate) => ({
     words: (() => {
       try {

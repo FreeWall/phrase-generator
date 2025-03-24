@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
+import { cn } from '@/utils/utils';
 import {
   DefinitionCategoryColors,
   toDefinitions,
@@ -102,7 +103,7 @@ export default function Index() {
   }, []);
 
   function generatePhrases(words: Word[]) {
-    const phrase = generatePhrase(words, 'longest');
+    const phrase = generatePhrase(words, 5);
     setPhrase(phrase);
   }
 
@@ -214,7 +215,16 @@ export default function Index() {
             {(field) => (
               <Slider
                 className="w-full"
-                label={<div>Max. délka slova: {field.state.value} znaků</div>}
+                label={
+                  <div>
+                    Max. délka slova:{' '}
+                    <span
+                      className={cn({ 'text-red-600': field.state.value < 5 })}
+                    >
+                      {field.state.value} znaků
+                    </span>
+                  </div>
+                }
                 min={3}
                 max={longestWordLength}
                 value={field.state.value}
