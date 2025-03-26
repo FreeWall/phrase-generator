@@ -7,17 +7,9 @@ import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
 import { cn } from '@/utils/utils';
-import {
-  DefinitionCategoryColors,
-  toDefinitions,
-} from '@/utils/words/definitions';
+import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
 import { passwordize } from '@/utils/words/passwordize';
-import {
-  Phrase,
-  Word,
-  generatePhrase,
-  phraseToString,
-} from '@/utils/words/words';
+import { Phrase, Word, generatePhrase, phraseToString } from '@/utils/words/words';
 
 export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -29,9 +21,7 @@ export default function Index() {
 
   const form = useForm({
     onSubmit: async ({ value }) => {
-      const words = wordList.filter(
-        (word) => word.value.length <= value.maxWordLength,
-      );
+      const words = wordList.filter((word) => word.value.length <= value.maxWordLength);
       setFilteredWordList(words);
       generatePhrases(words);
     },
@@ -169,8 +159,7 @@ export default function Index() {
   return (
     <div>
       <div className="flex flex-col gap-10 xl:flex-row">
-        {round(loadingProgress / 1024 / 1024, 1)} MB /{' '}
-        {round(totalLength / 1024 / 1024, 1)} MB
+        {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
       </div>
       <div className="w-[800px] space-y-4">
         <div>{filteredWordList.length.toLocaleString(undefined, {})} words</div>
@@ -218,9 +207,7 @@ export default function Index() {
                 label={
                   <div>
                     Max. délka slova:{' '}
-                    <span
-                      className={cn({ 'text-red-600': field.state.value < 5 })}
-                    >
+                    <span className={cn({ 'text-red-600': field.state.value < 5 })}>
                       {field.state.value} znaků
                     </span>
                   </div>

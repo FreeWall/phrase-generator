@@ -8,19 +8,13 @@ export function passwordize(
     diacritics?: boolean;
   },
 ): string {
-  const {
-    numbers = 1,
-    firstLetter = 'randomize',
-    diacritics = true,
-  } = options || {};
+  const { numbers = 1, firstLetter = 'randomize', diacritics = true } = options || {};
   const words = phrase
     .split(' ')
     .map((word) => {
       if (firstLetter == 'randomize') {
         return ''
-          .concat(
-            getRandomBoolean() ? word.charAt(0).toUpperCase() : word.charAt(0),
-          )
+          .concat(getRandomBoolean() ? word.charAt(0).toUpperCase() : word.charAt(0))
           .concat(word.slice(1));
       }
       if (firstLetter == 'lowercase') {
@@ -32,9 +26,7 @@ export function passwordize(
 
       return word;
     })
-    .map((word) =>
-      diacritics ? word : word.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
-    );
+    .map((word) => (diacritics ? word : word.normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
 
   for (let i = 0; i < numbers; i++) {
     const idx = getRandomNumber(0, words.length - 1);

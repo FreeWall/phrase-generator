@@ -1,9 +1,4 @@
-import {
-  SpringConfig,
-  animated,
-  useSpring,
-  useTransition,
-} from '@react-spring/web';
+import { SpringConfig, animated, useSpring, useTransition } from '@react-spring/web';
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, PropsWithChildren } from 'react';
 

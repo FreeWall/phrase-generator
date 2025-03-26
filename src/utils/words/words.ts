@@ -145,10 +145,7 @@ const presets = {
   ],
 };
 
-export function findWord(
-  words: Word[],
-  definitions?: DefinitionTuple<any>[],
-): Word {
+export function findWord(words: Word[], definitions?: DefinitionTuple<any>[]): Word {
   const word = words[getRandomNumber(0, words.length - 1)] as Word;
   if (definitions) {
     const isValid = definitions.every(([group, value]) => {
@@ -160,10 +157,7 @@ export function findWord(
   return word;
 }
 
-export function generatePhrase(
-  words: Word[],
-  phraseLength: PresetLength,
-): Phrase {
+export function generatePhrase(words: Word[], phraseLength: PresetLength): Phrase {
   const preset = presets[phraseLength];
   return preset().map((generate) => ({
     words: (() => {
@@ -179,7 +173,5 @@ export function generatePhrase(
 }
 
 export function phraseToString(phrase: Phrase): string {
-  return phrase
-    .map(({ words }) => words.map((word) => word.value).join(' '))
-    .join(' ');
+  return phrase.map(({ words }) => words.map((word) => word.value).join(' ')).join(' ');
 }

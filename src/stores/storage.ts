@@ -10,10 +10,7 @@ interface StorageStore extends StorageData {
 }
 
 function loadFromStorage(): StorageData {
-  const stored =
-    typeof window !== 'undefined'
-      ? localStorage.getItem(storageKey)
-      : undefined;
+  const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : undefined;
 
   if (stored) {
     return JSON.parse(stored);

@@ -11,17 +11,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className = 'block',
-      color = 'main',
-      children,
-      disabled,
-      loading,
-      ...rest
-    },
-    ref,
-  ) => {
+  ({ className = 'block', color = 'main', children, disabled, loading, ...rest }, ref) => {
     return (
       <button
         className={cn(
