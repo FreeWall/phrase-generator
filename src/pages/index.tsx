@@ -16,7 +16,7 @@ export default function Index() {
   const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
-  const [longestWordLength, setLongestWordLength] = useState(0);
+  const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
 
   const form = useForm({
@@ -100,50 +100,35 @@ export default function Index() {
   function renderPhrase(phrase: Phrase) {
     return (
       <div>
-        {phrase.map(({ words, generate }, idx) => (
-          <Fragment key={idx}>
-            <div
-              key={idx}
-              className="inline cursor-pointer"
-              onClick={() =>
-                setPhrase((prev) => {
-                  const newPhrase = [...(prev ?? [])];
-                  newPhrase[idx]!.words = generate(filteredWordList);
-                  return newPhrase;
-                })
-              }
-            >
+        {phrase.map(({ word, generate }, idx) => {
+          return (
+            <Fragment key={idx}>
               <TextTransition
-                translateValue="0%"
+                key={idx}
                 inline
-                className="group/words hover:text-highlight"
+                translateValue="0%"
               >
-                {words.map((word, idx) => (
-                  <div
-                    key={idx}
-                    className="hidden group-hover/phrase:hidden group-hover/words:inline"
-                  >
-                    {word.value}
-                    {idx < words.length - 1 ? ' ' : ''}
-                  </div>
-                ))}
-                {words.map((word, idx) => (
-                  <div
-                    key={idx}
-                    className="inline group-hover/phrase:inline group-hover/words:hidden"
-                    style={{
-                      color: DefinitionCategoryColors[word.definitions.k],
-                    }}
-                  >
-                    {word.value}
-                    {idx < words.length - 1 ? ' ' : ''}
-                  </div>
-                ))}
+                <div
+                  key={idx}
+                  className="cursor-pointer hover:underline"
+                  onClick={() =>
+                    setPhrase((prev) => {
+                      const newPhrase = [...(prev ?? [])];
+                      newPhrase[idx]!.word = generate(filteredWordList);
+                      return newPhrase;
+                    })
+                  }
+                  style={{
+                    color: DefinitionCategoryColors[word.definitions.k],
+                  }}
+                >
+                  {word.value}
+                </div>
               </TextTransition>
-            </div>
-            {idx < phrase.length - 1 ? ' ' : ''}
-          </Fragment>
-        ))}
+              {idx < phrase.length - 1 ? ' ' : ''}
+            </Fragment>
+          );
+        })}
       </div>
     );
   }
@@ -158,18 +143,20 @@ export default function Index() {
 
   return (
     <div>
-      <div className="flex flex-col gap-10 xl:flex-row">
-        {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
-      </div>
       <div className="w-[800px] space-y-4">
-        <div>{filteredWordList.length.toLocaleString(undefined, {})} words</div>
+        <div>
+          <div>
+            {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
+          </div>
+          <div>{filteredWordList.length.toLocaleString(undefined, {})} words</div>
+        </div>
         <Button
           onClick={() => generatePhrases(filteredWordList)}
           disabled={!wordList.length}
         >
           Generovat
         </Button>
-        <div className="group/phrase bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
+        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
           {phrase && renderPhrase(phrase)}
         </div>
         <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
@@ -207,7 +194,7 @@ export default function Index() {
                 label={
                   <div>
                     Max. délka slova:{' '}
-                    <span className={cn({ 'text-red-600': field.state.value < 5 })}>
+                    <span className={cn({ 'text-red-600': field.state.value < 6 })}>
                       {field.state.value} znaků
                     </span>
                   </div>
