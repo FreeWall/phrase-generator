@@ -8,8 +8,9 @@ import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
 import { cn } from '@/utils/utils';
 import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
+import { calculateEntropy } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
-import { Phrase, Word, generatePhrase, phraseToString } from '@/utils/words/words';
+import { Phrase, PresetLength, Word, generatePhrase, phraseToString } from '@/utils/words/words';
 
 export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -26,7 +27,7 @@ export default function Index() {
       generatePhrases(words);
     },
     defaultValues: {
-      phraseLength: 5,
+      phraseLength: 5 as PresetLength,
       maxWordLength: longestWordLength,
       numbers: 1,
     },
@@ -93,7 +94,7 @@ export default function Index() {
   }, []);
 
   function generatePhrases(words: Word[]) {
-    const phrase = generatePhrase(words, 5);
+    const phrase = generatePhrase(words, form.state.values.phraseLength);
     setPhrase(phrase);
   }
 
@@ -148,7 +149,10 @@ export default function Index() {
           <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
           </div>
-          <div>{filteredWordList.length.toLocaleString(undefined, {})} words</div>
+          <div>
+            {filteredWordList.length.toLocaleString(undefined, {})} words (
+            {round(calculateEntropy(filteredWordList.length, form.state.values.phraseLength))} bits)
+          </div>
         </div>
         <Button
           onClick={() => generatePhrases(filteredWordList)}
@@ -178,10 +182,9 @@ export default function Index() {
                 label={<div>Délka fráze: {field.state.value} slov</div>}
                 min={2}
                 max={5}
-                disabled
                 value={field.state.value}
                 onChange={(value) => {
-                  field.handleChange(value);
+                  field.handleChange(value as PresetLength);
                   form.handleSubmit();
                 }}
               />
