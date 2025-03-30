@@ -35,8 +35,8 @@ export const DefinitionValue = {
     INSTRUMENTAL: '7',
   },
   MOOD: {
-    PRESENT: 'A',
-    PAST: 'I',
+    PRESENT: 'I',
+    PAST: 'A',
   },
   PERSON: {
     FIRST_PERSON: '1',

@@ -70,7 +70,7 @@ export default function Index() {
           const lines = content.split('\n').filter((word) => !!word);
 
           for (const line of lines) {
-            const parts = line.split(':');
+            const parts = line.split(',');
             const word = parts[0];
             const definitions = parts[1];
             if (!word || !definitions) {
