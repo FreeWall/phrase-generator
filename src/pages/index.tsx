@@ -1,6 +1,7 @@
 import { useForm } from '@tanstack/react-form';
 import { round } from 'lodash-es';
 import { Fragment, useEffect, useState } from 'react';
+import { usePrevious } from 'react-use';
 
 import Button from '@/components/ui/Button';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
@@ -8,9 +9,18 @@ import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
 import { cn } from '@/utils/utils';
 import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
-import { calculateEntropy } from '@/utils/words/entropy';
+import { entropyToCombinations } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
-import { Phrase, PresetLength, Word, generatePhrase, phraseToString } from '@/utils/words/words';
+import { PresetLength } from '@/utils/words/presets';
+import {
+  Phrase,
+  Word,
+  generatePhrase,
+  getEntropy,
+  maxPresetLength,
+  minPresetLength,
+  phraseToString,
+} from '@/utils/words/words';
 
 export default function Index() {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -19,11 +29,23 @@ export default function Index() {
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
   const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
+  const [entropy, setEntropy] = useState(0);
 
   const form = useForm({
     onSubmit: async ({ value }) => {
-      const words = wordList.filter((word) => word.value.length <= value.maxWordLength);
+      const words =
+        filteredWordList.length === 0 || previousFormValues?.maxWordLength !== value.maxWordLength
+          ? wordList.filter((word) => word.value.length <= value.maxWordLength)
+          : filteredWordList;
       setFilteredWordList(words);
+
+      if (
+        previousFormValues?.maxWordLength !== value.maxWordLength ||
+        previousFormValues?.phraseLength !== value.phraseLength
+      ) {
+        setEntropy(getEntropy(words, value.phraseLength));
+      }
+
       generatePhrases(words);
     },
     defaultValues: {
@@ -32,6 +54,8 @@ export default function Index() {
       numbers: 1,
     },
   });
+
+  const previousFormValues = usePrevious(form.state.values);
 
   useEffect(() => {
     (async () => {
@@ -149,9 +173,16 @@ export default function Index() {
           <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
           </div>
+          <div>{filteredWordList.length.toLocaleString(undefined, {})} slov</div>
+          <div>entropie: {round(entropy)} bits</div>
           <div>
-            {filteredWordList.length.toLocaleString(undefined, {})} words (
-            {round(calculateEntropy(filteredWordList.length, form.state.values.phraseLength))} bits)
+            {round(entropyToCombinations(entropy)).toLocaleString(undefined, {})} možných kombinací
+          </div>
+          <div>
+            {round(
+              (entropyToCombinations(entropy) * 0.2) / 1000 / 60 / 60 / 24 / 365,
+            ).toLocaleString(undefined, {})}{' '}
+            let k prolomení
           </div>
         </div>
         <Button
@@ -170,6 +201,7 @@ export default function Index() {
                 numbers: form.state.values.numbers,
                 firstLetter: 'randomize',
                 diacritics: true,
+                spaces: false,
               })}
             />
           )}
@@ -180,8 +212,8 @@ export default function Index() {
               <Slider
                 className="w-full"
                 label={<div>Délka fráze: {field.state.value} slov</div>}
-                min={2}
-                max={5}
+                min={minPresetLength}
+                max={maxPresetLength}
                 value={field.state.value}
                 onChange={(value) => {
                   field.handleChange(value as PresetLength);

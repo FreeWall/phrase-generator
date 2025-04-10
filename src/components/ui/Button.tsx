@@ -15,7 +15,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          'relative flex cursor-pointer items-center rounded-full p-3.5 px-5 text-sm font-bold text-white uppercase transition-[padding] duration-300 select-none',
+          'relative flex cursor-pointer items-center rounded-full p-3.5 px-5 text-sm font-bold text-white uppercase transition-[padding] duration-300 outline-none select-none',
           {
             'bg-highlight hover:bg-highlight hover:brightness-90 active:brightness-75':
               color == 'main',

@@ -1,327 +1,86 @@
-import { getRandomBoolean, getRandomNumber } from '@/utils/random';
-import {
-  DefinitionGroup,
-  DefinitionTuple,
-  DefinitionValue,
-  Definitions,
-  getDefinitionTuple,
-} from '@/utils/words/definitions';
+import { sum } from 'lodash-es';
+
+import { getRandomNumber } from '@/utils/random';
+import { DefinitionGroup, DefinitionTuple, Definitions } from '@/utils/words/definitions';
+import { calculateEntropy } from '@/utils/words/entropy';
+import { PresetLength, PresetWordDefinition, presets } from '@/utils/words/presets';
 
 export type Word = {
   value: string;
   definitions: Definitions;
 };
 
-export type PresetLength = keyof typeof presets;
 export type Phrase = {
   word: Word;
   generate: (words: Word[]) => Word;
 }[];
 
+function isWordValidByDefinition(word: Word, definitions: DefinitionTuple<any>[]): boolean {
+  return definitions.every(([group, value]) => {
+    return word.definitions[group as DefinitionGroup] == value;
+  });
+}
+
 export function findWord(words: Word[], definitions?: DefinitionTuple<any>[]): Word {
   const word = words[getRandomNumber(0, words.length - 1)] as Word;
   if (definitions) {
-    const isValid = definitions.every(([group, value]) => {
-      return word.definitions[group as DefinitionGroup] == value;
-    });
+    const isValid = isWordValidByDefinition(word, definitions);
     return isValid ? word : findWord(words, definitions);
   }
 
   return word;
 }
 
+function filterWords(words: Word[], definitions: DefinitionTuple<any>[]): Word[] {
+  return words.filter((word) => {
+    return isWordValidByDefinition(word, definitions);
+  });
+}
+
 export function generatePhrase(words: Word[], phraseLength: PresetLength): Phrase {
   const preset = presets[phraseLength];
-  return preset(words).map((generate) => ({
+  return preset(words).map((wordFunction) => ({
     word: (() => {
       try {
-        return generate(words);
+        return wordFunction.word(words);
       } catch (e) {
         // in case of maximum call stack exceeded (rare)
-        return generate(words);
+        return wordFunction.word(words);
       }
     })(),
-    generate,
+    generate: (words: Word[]) => wordFunction.word(words),
   }));
+}
+
+export function getEntropy(words: Word[], phraseLength: PresetLength): number {
+  const preset = presets[phraseLength];
+  return sum(preset(words).map((wordFunction) => wordFunction.entropy(words)));
 }
 
 export function phraseToString(phrase: Phrase): string {
   return phrase.map(({ word }) => word.value).join(' ');
 }
 
-const presets = {
-  2: (words: Word[]) => {
-    const definitions1 = findWord(words, [
-      getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-      getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
-    ]).definitions;
+export function getWordFunctions(presetWordDefinition: PresetWordDefinition): {
+  word: (words: Word[]) => Word;
+  entropy: (words: Word[]) => number;
+} {
+  return {
+    word(words: Word[]) {
+      const randomDefinition =
+        presetWordDefinition.length > 1
+          ? presetWordDefinition[getRandomNumber(0, presetWordDefinition.length - 1)]
+          : presetWordDefinition[0];
+      return findWord(words, [...randomDefinition!.base, ...randomDefinition!.rest]);
+    },
+    entropy(words: Word[]) {
+      const sumWords = presetWordDefinition.reduce((acc, definition) => {
+        return acc + filterWords(words, definition.base).length;
+      }, 0);
+      return calculateEntropy(sumWords);
+    },
+  };
+}
 
-    const adjective = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-        getDefinitionTuple('g', definitions1.g),
-        getDefinitionTuple('n', definitions1.n),
-        getDefinitionTuple('c', definitions1.c),
-      ]);
-    };
-
-    const noun = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', definitions1.c),
-        getDefinitionTuple('g', definitions1.g),
-        getDefinitionTuple('n', definitions1.n),
-      ]);
-    };
-
-    return [adjective, noun];
-  },
-  3: (words: Word[]) => {
-    const variant = getRandomNumber(1, 2);
-
-    if (variant === 1) {
-      const definitions1 = findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
-      ]).definitions;
-
-      const adjective = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-          getDefinitionTuple('g', definitions1.g),
-          getDefinitionTuple('n', definitions1.n),
-          getDefinitionTuple('c', definitions1.c),
-        ]);
-      };
-
-      const noun = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', definitions1.c),
-          getDefinitionTuple('g', definitions1.g),
-          getDefinitionTuple('n', definitions1.n),
-        ]);
-      };
-
-      const verb = (words: Word[]) => {
-        return getRandomBoolean()
-          ? findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('g', definitions1.g),
-              getDefinitionTuple('n', definitions1.n),
-            ])
-          : findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
-              getDefinitionTuple('n', definitions1.n),
-            ]);
-      };
-
-      return [adjective, noun, verb];
-    }
-
-    if (variant === 2) {
-      const verb = (words: Word[]) => {
-        return findWord(words, [getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB)]);
-      };
-
-      const definitions2 = findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
-      ]).definitions;
-
-      const adjective = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-          getDefinitionTuple('g', definitions2.g),
-          getDefinitionTuple('n', definitions2.n),
-          getDefinitionTuple('c', definitions2.c),
-        ]);
-      };
-
-      const noun = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', definitions2.c),
-          getDefinitionTuple('g', definitions2.g),
-          getDefinitionTuple('n', definitions2.n),
-        ]);
-      };
-
-      return [verb, adjective, noun];
-    }
-
-    throw new Error('Invalid variant');
-  },
-  4: (words: Word[]) => {
-    const variant = getRandomNumber(1, 2);
-
-    if (variant === 1) {
-      const definitions1 = findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
-      ]).definitions;
-
-      const adjective = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-          getDefinitionTuple('g', definitions1.g),
-          getDefinitionTuple('n', definitions1.n),
-          getDefinitionTuple('c', definitions1.c),
-        ]);
-      };
-
-      const noun = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', definitions1.c),
-          getDefinitionTuple('g', definitions1.g),
-          getDefinitionTuple('n', definitions1.n),
-        ]);
-      };
-
-      const verb = (words: Word[]) => {
-        return getRandomBoolean()
-          ? findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('g', definitions1.g),
-              getDefinitionTuple('n', definitions1.n),
-            ])
-          : findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
-              getDefinitionTuple('n', definitions1.n),
-            ]);
-      };
-
-      const noun2 = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
-        ]);
-      };
-
-      return [adjective, noun, verb, noun2];
-    }
-
-    if (variant === 2) {
-      const definitions1 = findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
-      ]).definitions;
-
-      const noun = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', definitions1.c),
-          getDefinitionTuple('g', definitions1.g),
-          getDefinitionTuple('n', definitions1.n),
-        ]);
-      };
-
-      const verb = (words: Word[]) => {
-        return getRandomBoolean()
-          ? findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('g', definitions1.g),
-              getDefinitionTuple('n', definitions1.n),
-            ])
-          : findWord(words, [
-              getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-              getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
-              getDefinitionTuple('n', definitions1.n),
-            ]);
-      };
-
-      const definitions2 = findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
-      ]).definitions;
-
-      const adjective2 = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-          getDefinitionTuple('g', definitions2.g),
-          getDefinitionTuple('n', definitions2.n),
-          getDefinitionTuple('c', definitions2.c),
-        ]);
-      };
-
-      const noun2 = (words: Word[]) => {
-        return findWord(words, [
-          getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-          getDefinitionTuple('c', definitions2.c),
-          getDefinitionTuple('g', definitions2.g),
-          getDefinitionTuple('n', definitions2.n),
-        ]);
-      };
-
-      return [noun, verb, adjective2, noun2];
-    }
-
-    throw new Error('Invalid variant');
-  },
-  5: (words: Word[]) => {
-    const definitions1 = findWord(words, [
-      getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-      getDefinitionTuple('c', DefinitionValue.CASE.NOMINATIVE),
-    ]).definitions;
-
-    const adjective = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-        getDefinitionTuple('g', definitions1.g),
-        getDefinitionTuple('n', definitions1.n),
-        getDefinitionTuple('c', definitions1.c),
-      ]);
-    };
-
-    const noun = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', definitions1.c),
-        getDefinitionTuple('g', definitions1.g),
-        getDefinitionTuple('n', definitions1.n),
-      ]);
-    };
-
-    const verb = (words: Word[]) => {
-      return getRandomBoolean()
-        ? findWord(words, [
-            getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-            getDefinitionTuple('g', definitions1.g),
-            getDefinitionTuple('n', definitions1.n),
-          ])
-        : findWord(words, [
-            getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB),
-            getDefinitionTuple('p', DefinitionValue.PERSON.THIRD_PERSON),
-            getDefinitionTuple('n', definitions1.n),
-          ]);
-    };
-
-    const definitions2 = findWord(words, [
-      getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-      getDefinitionTuple('c', DefinitionValue.CASE.ACCUSATIVE),
-    ]).definitions;
-
-    const adjective2 = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
-        getDefinitionTuple('g', definitions2.g),
-        getDefinitionTuple('n', definitions2.n),
-        getDefinitionTuple('c', definitions2.c),
-      ]);
-    };
-
-    const noun2 = (words: Word[]) => {
-      return findWord(words, [
-        getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
-        getDefinitionTuple('c', definitions2.c),
-        getDefinitionTuple('g', definitions2.g),
-        getDefinitionTuple('n', definitions2.n),
-      ]);
-    };
-
-    return [adjective, noun, verb, adjective2, noun2];
-  },
-};
+export const minPresetLength = Math.min(...(Object.keys(presets) as unknown as number[]));
+export const maxPresetLength = Math.max(...(Object.keys(presets) as unknown as number[]));

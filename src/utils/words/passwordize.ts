@@ -6,9 +6,15 @@ export function passwordize(
     numbers?: number;
     firstLetter?: 'randomize' | 'lowercase' | 'uppercase';
     diacritics?: boolean;
+    spaces?: boolean;
   },
 ): string {
-  const { numbers = 1, firstLetter = 'randomize', diacritics = true } = options || {};
+  const {
+    numbers = 1,
+    firstLetter = 'randomize',
+    diacritics = true,
+    spaces = false,
+  } = options || {};
   const words = phrase
     .split(' ')
     .map((word) => {
@@ -33,5 +39,5 @@ export function passwordize(
     words[idx] = words[idx]!.concat(getRandomNumber(0, 9).toString());
   }
 
-  return words.join('');
+  return words.join(spaces ? ' ' : '');
 }
