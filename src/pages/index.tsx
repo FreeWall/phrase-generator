@@ -9,7 +9,12 @@ import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
 import { cn } from '@/utils/utils';
 import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
-import { entropyToCombinations } from '@/utils/words/entropy';
+import {
+  entropyToCombinations,
+  getCrackTime,
+  getCrackTimeString,
+  minRecommendedEntropy,
+} from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
 import { PresetLength } from '@/utils/words/presets';
 import {
@@ -169,20 +174,28 @@ export default function Index() {
   return (
     <div>
       <div className="w-[800px] space-y-4">
-        <div>
+        <div className="text-base">
           <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
           </div>
           <div>{filteredWordList.length.toLocaleString(undefined, {})} slov</div>
-          <div>entropie: {round(entropy)} bits</div>
           <div>
-            {round(entropyToCombinations(entropy)).toLocaleString(undefined, {})} možných kombinací
+            entropie:{' '}
+            <span className={cn({ 'text-red-600': round(entropy) < minRecommendedEntropy })}>
+              {round(entropy)} bits
+            </span>
           </div>
           <div>
-            {round(
-              (entropyToCombinations(entropy) * 0.2) / 1000 / 60 / 60 / 24 / 365,
-            ).toLocaleString(undefined, {})}{' '}
-            let k prolomení
+            <span className="text-highlight font-medium">
+              {round(entropyToCombinations(entropy)).toLocaleString(undefined, {})}
+            </span>{' '}
+            možných kombinací
+          </div>
+          <div>
+            <span className="text-highlight font-medium">
+              {getCrackTimeString(getCrackTime(entropy))}
+            </span>{' '}
+            k prolomení
           </div>
         </div>
         <Button
@@ -226,14 +239,7 @@ export default function Index() {
             {(field) => (
               <Slider
                 className="w-full"
-                label={
-                  <div>
-                    Max. délka slova:{' '}
-                    <span className={cn({ 'text-red-600': field.state.value < 6 })}>
-                      {field.state.value} znaků
-                    </span>
-                  </div>
-                }
+                label={<div>Max. délka slova: {field.state.value} znaků</div>}
                 min={3}
                 max={longestWordLength}
                 value={field.state.value}

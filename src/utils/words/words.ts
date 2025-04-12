@@ -1,5 +1,3 @@
-import { sum } from 'lodash-es';
-
 import { getRandomNumber } from '@/utils/random';
 import { DefinitionGroup, DefinitionTuple, Definitions } from '@/utils/words/definitions';
 import { calculateEntropy } from '@/utils/words/entropy';
@@ -39,7 +37,10 @@ function filterWords(words: Word[], definitions: DefinitionTuple<any>[]): Word[]
 
 export function generatePhrase(words: Word[], phraseLength: PresetLength): Phrase {
   const preset = presets[phraseLength];
-  return preset(words).map((wordFunction) => ({
+  const variants = preset(words);
+  const randonVariant =
+    variants.length > 1 ? variants[getRandomNumber(0, variants.length - 1)] : variants[0];
+  return randonVariant!.map((wordFunction) => ({
     word: (() => {
       try {
         return wordFunction.word(words);
@@ -54,7 +55,24 @@ export function generatePhrase(words: Word[], phraseLength: PresetLength): Phras
 
 export function getEntropy(words: Word[], phraseLength: PresetLength): number {
   const preset = presets[phraseLength];
-  return sum(preset(words).map((wordFunction) => wordFunction.entropy(words)));
+  const variants = preset(words);
+
+  const sumWordsByIndex: number[] = [];
+  for (let i = 0; i < phraseLength; i++) {
+    const differentWords = new Map(
+      variants.map((variant) => [JSON.stringify(variant[i]!.word(words).definitions), variant[i]!]),
+    );
+    differentWords.entries().forEach(([, word]) => {
+      sumWordsByIndex[i] ??= 0;
+      sumWordsByIndex[i]! += word.sumWords(words);
+    });
+  }
+
+  const entropy = sumWordsByIndex.reduce((acc, value) => {
+    return acc + calculateEntropy(value);
+  }, 0);
+
+  return entropy;
 }
 
 export function phraseToString(phrase: Phrase): string {
@@ -63,7 +81,7 @@ export function phraseToString(phrase: Phrase): string {
 
 export function getWordFunctions(presetWordDefinition: PresetWordDefinition): {
   word: (words: Word[]) => Word;
-  entropy: (words: Word[]) => number;
+  sumWords: (words: Word[]) => number;
 } {
   return {
     word(words: Word[]) {
@@ -73,11 +91,11 @@ export function getWordFunctions(presetWordDefinition: PresetWordDefinition): {
           : presetWordDefinition[0];
       return findWord(words, [...randomDefinition!.base, ...randomDefinition!.rest]);
     },
-    entropy(words: Word[]) {
+    sumWords(words: Word[]) {
       const sumWords = presetWordDefinition.reduce((acc, definition) => {
         return acc + filterWords(words, definition.base).length;
       }, 0);
-      return calculateEntropy(sumWords);
+      return sumWords;
     },
   };
 }
