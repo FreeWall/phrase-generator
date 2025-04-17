@@ -3,8 +3,8 @@ export const minRecommendedEntropy = 50;
 // PBKDF2: 600K: 0.2 ms
 // PBKDF2: 2M: 0.66 ms
 
-export function calculateEntropy(uniqueWordsCount: number, phraseLength: number = 1) {
-  return Math.log2(Math.pow(uniqueWordsCount, phraseLength));
+export function calculateEntropy(uniqueWordsCount: number) {
+  return Math.log2(uniqueWordsCount);
 }
 
 export function entropyToCombinations(entropy: number) {
@@ -12,7 +12,7 @@ export function entropyToCombinations(entropy: number) {
 }
 
 export function getCrackTime(entropy: number, hashTime: number = 0.2) {
-  const combinations = entropyToCombinations(entropy);
+  const combinations = entropyToCombinations(entropy) / 2;
   const time = (combinations * hashTime) / 1000;
   return time;
 }

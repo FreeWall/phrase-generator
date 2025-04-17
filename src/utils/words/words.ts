@@ -1,7 +1,15 @@
+import { round } from 'lodash-es';
+
 import { getRandomNumber } from '@/utils/random';
 import { DefinitionGroup, DefinitionTuple, Definitions } from '@/utils/words/definitions';
 import { calculateEntropy } from '@/utils/words/entropy';
 import { PresetLength, PresetWordDefinition, presets } from '@/utils/words/presets';
+
+export const wordLists = [
+  '/assets/words/cs/k1.txt',
+  '/assets/words/cs/k2.txt',
+  '/assets/words/cs/k5.txt',
+];
 
 export type Word = {
   value: string;
@@ -62,9 +70,9 @@ export function getEntropy(words: Word[], phraseLength: PresetLength): number {
     const differentWords = new Map(
       variants.map((variant) => [JSON.stringify(variant[i]!.word(words).definitions), variant[i]!]),
     );
-    differentWords.entries().forEach(([, word]) => {
+    differentWords.forEach(({ sumWords }) => {
       sumWordsByIndex[i] ??= 0;
-      sumWordsByIndex[i]! += word.sumWords(words);
+      sumWordsByIndex[i]! += sumWords(words);
     });
   }
 
@@ -72,7 +80,7 @@ export function getEntropy(words: Word[], phraseLength: PresetLength): number {
     return acc + calculateEntropy(value);
   }, 0);
 
-  return entropy;
+  return round(entropy, 2);
 }
 
 export function phraseToString(phrase: Phrase): string {
@@ -99,6 +107,3 @@ export function getWordFunctions(presetWordDefinition: PresetWordDefinition): {
     },
   };
 }
-
-export const minPresetLength = Math.min(...(Object.keys(presets) as unknown as number[]));
-export const maxPresetLength = Math.max(...(Object.keys(presets) as unknown as number[]));

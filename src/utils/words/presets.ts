@@ -152,3 +152,10 @@ export const presets = {
     ];
   },
 };
+
+export const minPresetLength = Math.min(
+  ...(Object.keys(presets) as unknown as number[]),
+) as PresetLength;
+export const maxPresetLength = Math.max(
+  ...(Object.keys(presets) as unknown as number[]),
+) as PresetLength;

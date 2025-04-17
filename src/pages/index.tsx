@@ -1,5 +1,8 @@
 import { useForm } from '@tanstack/react-form';
+import { readFile } from 'fs/promises';
 import { round } from 'lodash-es';
+import { GetStaticProps } from 'next';
+import path from 'path';
 import { Fragment, useEffect, useState } from 'react';
 import { usePrevious } from 'react-use';
 
@@ -16,25 +19,29 @@ import {
   minRecommendedEntropy,
 } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
-import { PresetLength } from '@/utils/words/presets';
+import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets';
 import {
   Phrase,
   Word,
   generatePhrase,
   getEntropy,
-  maxPresetLength,
-  minPresetLength,
   phraseToString,
+  wordLists,
 } from '@/utils/words/words';
 
-export default function Index() {
+const shortestWordLength = 3;
+
+interface IndexProps {
+  precalculatedEntropies: Record<string, number>;
+}
+
+export default function Index(props: IndexProps) {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
   const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
-  const [entropy, setEntropy] = useState(0);
 
   const form = useForm({
     onSubmit: async ({ value }) => {
@@ -44,15 +51,9 @@ export default function Index() {
           : filteredWordList;
       setFilteredWordList(words);
 
-      if (
-        previousFormValues?.maxWordLength !== value.maxWordLength ||
-        previousFormValues?.phraseLength !== value.phraseLength
-      ) {
-        setEntropy(getEntropy(words, value.phraseLength));
-      }
-
       generatePhrases(words);
     },
+    onSubmitMeta: {} as { initial: boolean },
     defaultValues: {
       phraseLength: 5 as PresetLength,
       maxWordLength: longestWordLength,
@@ -64,16 +65,11 @@ export default function Index() {
 
   useEffect(() => {
     (async () => {
-      const wordlists = [
-        '/assets/words/cs/k1.txt',
-        '/assets/words/cs/k2.txt',
-        '/assets/words/cs/k5.txt',
-      ];
       setTotalLength(0);
       setLoadingProgress(0);
       const words: Word[] = [];
       await Promise.all(
-        wordlists.map(async (url) => {
+        wordLists.map(async (url) => {
           const response = await fetch(url);
 
           const reader = response.body?.getReader();
@@ -168,8 +164,13 @@ export default function Index() {
       return;
     }
 
-    form.handleSubmit();
+    form.handleSubmit({ initial: true });
   }, [form, wordList.length]);
+
+  const entropy =
+    props.precalculatedEntropies[
+      `${form.state.values.phraseLength}-${form.state.values.maxWordLength}`
+    ] ?? 0;
 
   return (
     <div>
@@ -181,7 +182,11 @@ export default function Index() {
           <div>{filteredWordList.length.toLocaleString(undefined, {})} slov</div>
           <div>
             entropie:{' '}
-            <span className={cn({ 'text-red-600': round(entropy) < minRecommendedEntropy })}>
+            <span
+              className={cn('font-medium text-green-700', {
+                'text-red-600': round(entropy) < minRecommendedEntropy,
+              })}
+            >
               {round(entropy)} bits
             </span>
           </div>
@@ -240,7 +245,7 @@ export default function Index() {
               <Slider
                 className="w-full"
                 label={<div>Max. délka slova: {field.state.value} znaků</div>}
-                min={3}
+                min={shortestWordLength}
                 max={longestWordLength}
                 value={field.state.value}
                 onChange={(value) => {
@@ -270,3 +275,52 @@ export default function Index() {
     </div>
   );
 }
+
+export const getStaticProps: GetStaticProps<IndexProps> = async () => {
+  const words: Word[] = [];
+  const precalculatedEntropies: Record<string, number> = {};
+
+  await Promise.all(
+    wordLists.map(async (file) => {
+      const content = await readFile(path.join(process.cwd(), 'public', file), 'utf8');
+
+      const lines = content.split('\n').filter((word) => !!word);
+
+      for (const line of lines) {
+        const parts = line.split(',');
+        const word = parts[0];
+        const definitions = parts[1];
+        if (!word || !definitions) {
+          return;
+        }
+        words.push({
+          value: word,
+          definitions: toDefinitions(definitions),
+        });
+      }
+    }),
+  );
+
+  const longestWord = words.reduce((prev, curr) =>
+    prev.value.length > curr.value.length ? prev : curr,
+  );
+
+  for (let wordLength = shortestWordLength; wordLength <= longestWord.value.length; wordLength++) {
+    const filteredWords = words.filter((word) => word.value.length <= wordLength);
+    for (
+      let presetLength: PresetLength = minPresetLength;
+      presetLength <= maxPresetLength;
+      presetLength++
+    ) {
+      const entropy = getEntropy(filteredWords, presetLength);
+      const key = `${presetLength}-${wordLength}`;
+      precalculatedEntropies[key] = entropy;
+    }
+  }
+
+  return {
+    props: {
+      precalculatedEntropies,
+    },
+  };
+};
