@@ -6,11 +6,11 @@ html {
 }
 body {
   font-family: 'Inter', sans-serif;
-  @apply text-text h-full bg-white antialiased;
+  @apply text-text h-full bg-white text-base antialiased;
 }
 
 #__next {
-  @apply h-full text-sm;
+  @apply h-full;
 }
 
 .forceStroke > path,

@@ -35,18 +35,18 @@ export function EntropyLabel({ entropy, words }: { entropy: number; words: numbe
 
   return (
     <div className={cn('w-[256px] rounded-lg', entropyLevelBgColors[entropyLevel])}>
-      <div className="flex items-center justify-between border-b-2 border-b-white px-4 py-3 text-base font-medium">
+      <div className="flex items-center justify-between border-b-2 border-b-white px-4 py-3">
         <div>
           Entropie fráze:{' '}
           <span className={cn('font-semibold', entropyLevelTextColors[entropyLevel])}>
-            {round(entropy)}
+            {round(entropy)} bitů
           </span>
         </div>
         <div className={cn(entropyLevelTextColors[entropyLevel])}>
           {entropyLevelIcon[entropyLevel]}
         </div>
       </div>
-      <div className="px-4 py-3 text-sm font-medium">
+      <div className="px-4 py-3 text-sm">
         <div>
           Slovník: <span className="font-semibold">{words.toLocaleString(undefined, {})} slov</span>
         </div>

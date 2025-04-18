@@ -169,7 +169,13 @@ export default function Index(props: IndexProps) {
   return (
     <div>
       <div className="w-[800px] space-y-4">
-        <div className="text-base">
+        <div className="mb-10">
+          <div className="text-3xl font-semibold">Generátor frázového hesla</div>
+          <div className="pt-1">
+            Vytvořte si silné frázové heslo, které je snadno zapamatovatelné
+          </div>
+        </div>
+        <div>
           <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
           </div>
@@ -184,10 +190,10 @@ export default function Index(props: IndexProps) {
         >
           Generovat
         </Button>
-        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
+        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl select-none">
           {phrase && renderPhrase(phrase)}
         </div>
-        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl font-medium select-none">
+        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl select-none">
           {phrase && (
             <NumbersHighlighter
               phrase={passwordize(phraseToString(phrase), {

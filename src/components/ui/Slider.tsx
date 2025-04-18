@@ -17,7 +17,7 @@ interface SliderProps {
 export default function Slider(props: SliderProps) {
   return (
     <div className={cn('', props.className)}>
-      {props.label && <div className="mb-3 text-base font-medium">{props.label}</div>}
+      {props.label && <div className="mb-3">{props.label}</div>}
       <div className="pr-4">
         <ReactSlider
           min={props.min}
