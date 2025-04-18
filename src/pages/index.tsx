@@ -6,18 +6,12 @@ import path from 'path';
 import { Fragment, useEffect, useState } from 'react';
 import { usePrevious } from 'react-use';
 
+import { EntropyLabel } from '@/components/index/EntropyLabel';
 import Button from '@/components/ui/Button';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import { TextTransition } from '@/components/ui/TextTransition';
-import { cn } from '@/utils/utils';
 import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
-import {
-  entropyToCombinations,
-  getCrackTime,
-  getCrackTimeString,
-  minRecommendedEntropy,
-} from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
 import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets';
 import {
@@ -179,30 +173,11 @@ export default function Index(props: IndexProps) {
           <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
           </div>
-          <div>{filteredWordList.length.toLocaleString(undefined, {})} slov</div>
-          <div>
-            entropie:{' '}
-            <span
-              className={cn('font-medium text-green-700', {
-                'text-red-600': round(entropy) < minRecommendedEntropy,
-              })}
-            >
-              {round(entropy)} bits
-            </span>
-          </div>
-          <div>
-            <span className="text-highlight font-medium">
-              {round(entropyToCombinations(entropy)).toLocaleString(undefined, {})}
-            </span>{' '}
-            možných kombinací
-          </div>
-          <div>
-            <span className="text-highlight font-medium">
-              {getCrackTimeString(getCrackTime(entropy))}
-            </span>{' '}
-            k prolomení
-          </div>
         </div>
+        <EntropyLabel
+          entropy={entropy}
+          words={filteredWordList.length}
+        />
         <Button
           onClick={() => generatePhrases(filteredWordList)}
           disabled={!wordList.length}
@@ -229,7 +204,11 @@ export default function Index(props: IndexProps) {
             {(field) => (
               <Slider
                 className="w-full"
-                label={<div>Délka fráze: {field.state.value} slov</div>}
+                label={
+                  <div>
+                    Délka fráze: <span className="font-semibold">{field.state.value} slov</span>
+                  </div>
+                }
                 min={minPresetLength}
                 max={maxPresetLength}
                 value={field.state.value}
@@ -244,7 +223,12 @@ export default function Index(props: IndexProps) {
             {(field) => (
               <Slider
                 className="w-full"
-                label={<div>Max. délka slova: {field.state.value} znaků</div>}
+                label={
+                  <div>
+                    Max. délka slova:{' '}
+                    <span className="font-semibold">{field.state.value} znaků</span>
+                  </div>
+                }
                 min={shortestWordLength}
                 max={longestWordLength}
                 value={field.state.value}
@@ -259,7 +243,11 @@ export default function Index(props: IndexProps) {
             {(field) => (
               <Slider
                 className="w-full"
-                label={<div>Počet číslic: {field.state.value}</div>}
+                label={
+                  <div>
+                    Počet číslic: <span className="font-semibold">{field.state.value}</span>
+                  </div>
+                }
                 min={0}
                 max={10}
                 value={field.state.value}

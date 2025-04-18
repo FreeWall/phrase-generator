@@ -25,9 +25,8 @@ module.exports = function next(stage) {
   return withBundleAnalyzer(
     defineNextConfig({
       distDir: '_next',
-      output: 'standalone',
+      output: 'export',
       assetPrefix: stage == PHASE_DEVELOPMENT_SERVER ? undefined : './',
-      swcMinify: true,
       productionBrowserSourceMaps: true,
       experimental: {
         fallbackNodePolyfills: false,

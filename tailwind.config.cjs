@@ -10,6 +10,9 @@ module.exports = {
         darker: '#e6ebef',
         highlight: '#175DDC',
         border: '#9CA6B8',
+        labelSuccess: '#E0EBE5',
+        labelWarning: '#EDE1D1',
+        labelDanger: '#EFD2D2',
       },
       keyframes: {
         slideDownAndFade: {

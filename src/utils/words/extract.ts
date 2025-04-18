@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { shuffle } from 'lodash-es';
 
 import { DefinitionValue, getDefinition, toDefinitions } from '@/utils/words/definitions';
