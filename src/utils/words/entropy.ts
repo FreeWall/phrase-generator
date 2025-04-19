@@ -1,7 +1,6 @@
-export const minRecommendedEntropy = 50;
 export const minEntropyLevels = {
   high: 50,
-  medium: 40,
+  medium: 45,
   low: 30,
 };
 
@@ -28,5 +27,5 @@ export function entropyToCombinations(entropy: number) {
 
 export function getCrackTimeSeconds(entropy: number, hashTime: number = 0.2) {
   const combinations = entropyToCombinations(entropy) / 2;
-  return (combinations * hashTime) / 1000;
+  return Math.round((combinations * hashTime) / 1000);
 }

@@ -28,35 +28,46 @@ const entropyLevelIcon = {
   low: <FaExclamationTriangle />,
 } as const satisfies Record<keyof typeof minEntropyLevels, JSX.Element>;
 
-export function EntropyLabel({ entropy, words }: { entropy: number; words: number }) {
+export function EntropyLabel({
+  entropy,
+  words,
+  expanded = false,
+}: {
+  entropy: number;
+  words: number;
+  expanded?: boolean;
+}) {
   const combinations = entropyToCombinations(entropy);
   const timeToCrack = formatPeriod(getCrackTimeSeconds(entropy));
   const entropyLevel = getEntropyLevel(entropy);
 
   return (
     <div className={cn('w-[256px] rounded-lg', entropyLevelBgColors[entropyLevel])}>
-      <div className="flex items-center justify-between border-b-2 border-b-white px-4 py-3">
+      <div className="flex items-center justify-between px-4 py-3">
         <div>
           Entropie fráze:{' '}
           <span className={cn('font-semibold', entropyLevelTextColors[entropyLevel])}>
             {round(entropy)} bitů
           </span>
         </div>
-        <div className={cn(entropyLevelTextColors[entropyLevel])}>
+        <div className={cn(entropyLevelTextColors[entropyLevel], 'text-xl')}>
           {entropyLevelIcon[entropyLevel]}
         </div>
       </div>
-      <div className="px-4 py-3 text-sm">
-        <div>
-          Slovník: <span className="font-semibold">{words.toLocaleString(undefined, {})} slov</span>
+      {expanded && (
+        <div className="border-t-2 border-t-white px-4 py-3 text-sm">
+          <div>
+            Slovník:{' '}
+            <span className="font-semibold">{words.toLocaleString(undefined, {})} slov</span>
+          </div>
+          <div>
+            Kombinací: <span className="font-semibold">{formatLargeNumber(combinations)}</span>
+          </div>
+          <div>
+            Čas k prolomení: <span className="font-semibold">{timeToCrack}</span>
+          </div>
         </div>
-        <div>
-          Kombinací: <span className="font-semibold">{formatLargeNumber(combinations)}</span>
-        </div>
-        <div>
-          Čas k prolomení: <span className="font-semibold">{timeToCrack}</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

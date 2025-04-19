@@ -40,7 +40,6 @@ const periodWords: Record<number, readonly [string, string, string]> = {
   [60 * 60 * 24]: ['den', 'dny', 'dní'],
   [60 * 60 * 24 * 30]: ['měsíc', 'měsíce', 'měsíců'],
   [60 * 60 * 24 * 365]: ['rok', 'roky', 'let'],
-  [60 * 60 * 24 * 365 * 100]: ['století', 'století', 'století'],
 } as const;
 
 const periods = [
@@ -49,8 +48,6 @@ const periods = [
   { limit: 60 * 60 * 24 * 2, unit: 60 * 60 },
   { limit: 60 * 60 * 24 * 30, unit: 60 * 60 * 24 },
   { limit: 60 * 60 * 24 * 365, unit: 60 * 60 * 24 * 30 },
-  { limit: 100 * 60 * 60 * 24 * 365, unit: 60 * 60 * 24 * 365 },
-  { limit: 10000 * 60 * 60 * 24 * 365, unit: 100 * 60 * 60 * 24 * 365 },
 ];
 
 export function formatPeriod(number: number) {

@@ -1,6 +1,5 @@
 import { useForm } from '@tanstack/react-form';
 import { readFile } from 'fs/promises';
-import { round } from 'lodash-es';
 import { GetStaticProps } from 'next';
 import path from 'path';
 import { Fragment, useEffect, useState } from 'react';
@@ -175,11 +174,11 @@ export default function Index(props: IndexProps) {
             Vytvořte si silné frázové heslo, které je snadno zapamatovatelné
           </div>
         </div>
-        <div>
-          <div>
+
+        {/* <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
-          </div>
-        </div>
+          </div> */}
+
         <EntropyLabel
           entropy={entropy}
           words={filteredWordList.length}
