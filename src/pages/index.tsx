@@ -2,15 +2,15 @@ import { useForm } from '@tanstack/react-form';
 import { readFile } from 'fs/promises';
 import { GetStaticProps } from 'next';
 import path from 'path';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePrevious } from 'react-use';
 
 import { EntropyLabel } from '@/components/index/EntropyLabel';
+import PhraseWords from '@/components/index/PhraseWords';
 import Button from '@/components/ui/Button';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
-import { TextTransition } from '@/components/ui/TextTransition';
-import { DefinitionCategoryColors, toDefinitions } from '@/utils/words/definitions';
+import { toDefinitions } from '@/utils/words/definitions';
 import { passwordize } from '@/utils/words/passwordize';
 import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets';
 import {
@@ -43,8 +43,7 @@ export default function Index(props: IndexProps) {
           ? wordList.filter((word) => word.value.length <= value.maxWordLength)
           : filteredWordList;
       setFilteredWordList(words);
-
-      generatePhrases(words);
+      setPhrase(generatePhrase(words, form.state.values.phraseLength));
     },
     onSubmitMeta: {} as { initial: boolean },
     defaultValues: {
@@ -111,47 +110,6 @@ export default function Index(props: IndexProps) {
     })();
   }, []);
 
-  function generatePhrases(words: Word[]) {
-    const phrase = generatePhrase(words, form.state.values.phraseLength);
-    setPhrase(phrase);
-  }
-
-  function renderPhrase(phrase: Phrase) {
-    return (
-      <div>
-        {phrase.map(({ word, generate }, idx) => {
-          return (
-            <Fragment key={idx}>
-              <TextTransition
-                key={idx}
-                inline
-                translateValue="0%"
-              >
-                <div
-                  key={idx}
-                  className="cursor-pointer hover:underline"
-                  onClick={() =>
-                    setPhrase((prev) => {
-                      const newPhrase = [...(prev ?? [])];
-                      newPhrase[idx]!.word = generate(filteredWordList);
-                      return newPhrase;
-                    })
-                  }
-                  style={{
-                    color: DefinitionCategoryColors[word.definitions.k],
-                  }}
-                >
-                  {word.value}
-                </div>
-              </TextTransition>
-              {idx < phrase.length - 1 ? ' ' : ''}
-            </Fragment>
-          );
-        })}
-      </div>
-    );
-  }
-
   useEffect(() => {
     if (!wordList.length) {
       return;
@@ -184,14 +142,30 @@ export default function Index(props: IndexProps) {
           words={filteredWordList.length}
         />
         <Button
-          onClick={() => generatePhrases(filteredWordList)}
+          onClick={() =>
+            setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
+          }
           disabled={!wordList.length}
         >
           Generovat
         </Button>
-        <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl select-none">
-          {phrase && renderPhrase(phrase)}
-        </div>
+        {phrase && (
+          <div className="bg-darker rounded-lg px-8 py-8 text-2xl select-none">
+            <PhraseWords
+              phrase={phrase}
+              onWordClick={(idx) => {
+                setPhrase((prev) => {
+                  const newPhrase = [...(prev ?? [])];
+                  if (!newPhrase[idx]) {
+                    return;
+                  }
+                  newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
+                  return newPhrase;
+                });
+              }}
+            />
+          </div>
+        )}
         <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl select-none">
           {phrase && (
             <NumbersHighlighter
@@ -271,7 +245,6 @@ export default function Index(props: IndexProps) {
 
 export const getStaticProps: GetStaticProps<IndexProps> = async () => {
   const words: Word[] = [];
-  const precalculatedEntropies: Record<string, number> = {};
 
   await Promise.all(
     wordLists.map(async (file) => {
@@ -297,6 +270,8 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
   const longestWord = words.reduce((prev, curr) =>
     prev.value.length > curr.value.length ? prev : curr,
   );
+
+  const precalculatedEntropies: Record<string, number> = {};
 
   for (let wordLength = shortestWordLength; wordLength <= longestWord.value.length; wordLength++) {
     const filteredWords = words.filter((word) => word.value.length <= wordLength);
