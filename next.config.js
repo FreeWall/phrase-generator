@@ -1,7 +1,7 @@
 // @ts-check
 
 const NextBundleAnalyzer = require('@next/bundle-analyzer');
-const { PHASE_DEVELOPMENT_SERVER } = require('next/constants.js');
+const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } = require('next/constants.js');
 const { repository } = require('./package.json');
 
 /**
@@ -24,17 +24,13 @@ const withBundleAnalyzer = NextBundleAnalyzer({
 module.exports = function next(stage) {
   return withBundleAnalyzer(
     defineNextConfig({
-      distDir: '_next',
+      distDir: stage == PHASE_PRODUCTION_BUILD ? 'build' : '_next',
       output: 'export',
       assetPrefix: stage == PHASE_DEVELOPMENT_SERVER ? undefined : './',
       productionBrowserSourceMaps: true,
-      experimental: {
-        fallbackNodePolyfills: false,
-      },
       publicRuntimeConfig: {
         repository,
       },
-      compress: false,
       webpack(config) {
         config.module.rules.push({
           test: /\.svg$/,
