@@ -11,7 +11,7 @@ import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import { toDefinitions } from '@/utils/words/definitions';
 import { passwordize } from '@/utils/words/passwordize';
-import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets';
+import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets/cs';
 import {
   Phrase,
   Word,

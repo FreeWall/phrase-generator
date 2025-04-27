@@ -3,13 +3,18 @@ import { round } from 'lodash-es';
 import { getRandomNumber } from '@/utils/random';
 import { DefinitionGroup, DefinitionTuple, Definitions } from '@/utils/words/definitions';
 import { calculateEntropy } from '@/utils/words/entropy';
-import { PresetLength, PresetWordDefinition, presets } from '@/utils/words/presets';
+import { PresetLength, presets } from '@/utils/words/presets/cs';
 
 export const wordLists = [
   '/assets/words/cs/k1.txt',
   '/assets/words/cs/k2.txt',
   '/assets/words/cs/k5.txt',
 ];
+
+export type PresetWordDefinitions = {
+  base: DefinitionTuple<any>[];
+  rest: DefinitionTuple<any>[];
+}[];
 
 export type Word = {
   value: string;
@@ -87,21 +92,21 @@ export function phraseToString(phrase: Phrase): string {
   return phrase.map(({ word }) => word.value).join(' ');
 }
 
-export function getWordFunctions(presetWordDefinition: PresetWordDefinition): {
+export function getWordFunctions(presetWordDefinitions: PresetWordDefinitions): {
   word: (words: Word[]) => Word;
   sumWords: (words: Word[]) => number;
 } {
   return {
     word(words: Word[]) {
       const randomDefinition =
-        presetWordDefinition.length > 1
-          ? presetWordDefinition[getRandomNumber(0, presetWordDefinition.length - 1)]
-          : presetWordDefinition[0];
+        presetWordDefinitions.length > 1
+          ? presetWordDefinitions[getRandomNumber(0, presetWordDefinitions.length - 1)]
+          : presetWordDefinitions[0];
       return findWord(words, [...randomDefinition!.base, ...randomDefinition!.rest]);
     },
     sumWords(words: Word[]) {
-      const sumWords = presetWordDefinition.reduce((acc, definition) => {
-        return acc + filterWords(words, definition.base).length;
+      const sumWords = presetWordDefinitions.reduce((acc, definition) => {
+        return acc + new Set(filterWords(words, definition.base).map((word) => word.value)).size;
       }, 0);
       return sumWords;
     },

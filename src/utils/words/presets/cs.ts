@@ -1,20 +1,12 @@
-import {
-  DefinitionTuple,
-  DefinitionValue,
-  Definitions,
-  getDefinitionTuple,
-} from '@/utils/words/definitions';
-import { Word, findWord, getWordFunctions } from '@/utils/words/words';
+import { DefinitionValue, Definitions, getDefinitionTuple } from '@/utils/words/definitions';
+import { PresetWordDefinitions, Word, findWord, getWordFunctions } from '@/utils/words/words';
 
 export type PresetLength = keyof typeof presets;
 
-export type PresetWordDefinition = {
-  base: DefinitionTuple<any>[];
-  rest: DefinitionTuple<any>[];
-}[];
-
-function getAdjectiveNoun(definitions: Definitions): [PresetWordDefinition, PresetWordDefinition] {
-  const adjective: PresetWordDefinition = [
+function getAdjectiveNoun(
+  definitions: Definitions,
+): [PresetWordDefinitions, PresetWordDefinitions] {
+  const adjective: PresetWordDefinitions = [
     {
       base: [
         getDefinitionTuple('k', DefinitionValue.CATEGORY.ADJECTIVE),
@@ -24,7 +16,7 @@ function getAdjectiveNoun(definitions: Definitions): [PresetWordDefinition, Pres
     },
   ];
 
-  const noun: PresetWordDefinition = [
+  const noun: PresetWordDefinitions = [
     {
       base: [
         getDefinitionTuple('k', DefinitionValue.CATEGORY.NOUN),
@@ -37,7 +29,7 @@ function getAdjectiveNoun(definitions: Definitions): [PresetWordDefinition, Pres
   return [adjective, noun];
 }
 
-function getVerb(definitions: Definitions): PresetWordDefinition {
+function getVerb(definitions: Definitions): PresetWordDefinitions {
   return [
     {
       base: [getDefinitionTuple('k', DefinitionValue.CATEGORY.VERB)],
