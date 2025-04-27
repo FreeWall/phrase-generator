@@ -2,7 +2,8 @@ import { useForm } from '@tanstack/react-form';
 import { readFile } from 'fs/promises';
 import { GetStaticProps } from 'next';
 import path from 'path';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { FaSyncAlt } from 'react-icons/fa';
 import { usePrevious } from 'react-use';
 
 import { EntropyLabel } from '@/components/index/EntropyLabel';
@@ -34,6 +35,7 @@ export default function Index(props: IndexProps) {
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
   const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
+  const [passphrase, setPassphrase] = useState<string>();
 
   const form = useForm({
     onSubmit: async ({ value }) => {
@@ -124,6 +126,24 @@ export default function Index(props: IndexProps) {
     form.handleSubmit({ initial: true });
   }, [form, wordList.length]);
 
+  const updatePassphrase = useCallback(() => {
+    if (!phrase) {
+      return;
+    }
+    setPassphrase(
+      passwordize(phraseToString(phrase), {
+        numbers: form.state.values.numbers,
+        firstLetter: 'randomize',
+        diacritics: true,
+        spaces: false,
+      }),
+    );
+  }, [phrase, form.state.values.numbers]);
+
+  useEffect(() => {
+    updatePassphrase();
+  }, [updatePassphrase, phrase, form.state.values.numbers]);
+
   const entropy =
     props.precalculatedEntropies[
       `${form.state.values.phraseLength}-${form.state.values.maxWordLength}`
@@ -145,20 +165,32 @@ export default function Index(props: IndexProps) {
           <div className="text-2xl font-semibold">Fráze</div>
           <div className="mt-6">
             {phrase && (
-              <div className="bg-darker rounded-lg px-8 py-8 text-2xl select-none">
-                <PhraseWords
-                  phrase={phrase}
-                  onWordClick={(idx) => {
-                    setPhrase((prev) => {
-                      const newPhrase = [...(prev ?? [])];
-                      if (!newPhrase[idx]) {
-                        return;
-                      }
-                      newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
-                      return newPhrase;
-                    });
-                  }}
-                />
+              <div className="bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl select-none">
+                <div className="pt-4">
+                  <PhraseWords
+                    phrase={phrase}
+                    onWordClick={(idx) => {
+                      setPhrase((prev) => {
+                        const newPhrase = [...(prev ?? [])];
+                        if (!newPhrase[idx]) {
+                          return;
+                        }
+                        newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
+                        return newPhrase;
+                      });
+                    }}
+                  />
+                </div>
+                <div>
+                  <div
+                    className="text-highlight cursor-pointer p-4 hover:brightness-75"
+                    onClick={() =>
+                      setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
+                    }
+                  >
+                    <FaSyncAlt className="h-7 w-7" />
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -215,16 +247,17 @@ export default function Index(props: IndexProps) {
         <div>
           <div className="text-2xl font-semibold">Heslo</div>
           <div className="mt-6">
-            {phrase && (
-              <div className="bg-darker space-y-2 rounded-lg px-8 py-8 text-2xl select-none">
-                <NumbersHighlighter
-                  phrase={passwordize(phraseToString(phrase), {
-                    numbers: form.state.values.numbers,
-                    firstLetter: 'randomize',
-                    diacritics: true,
-                    spaces: false,
-                  })}
-                />
+            {phrase && passphrase && (
+              <div className="bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl select-none">
+                <div className="pt-4 break-all">
+                  <NumbersHighlighter phrase={passphrase} />
+                </div>
+                <div
+                  className="text-highlight cursor-pointer p-4 hover:brightness-75"
+                  onClick={() => updatePassphrase()}
+                >
+                  <FaSyncAlt className="h-7 w-7" />
+                </div>
               </div>
             )}
           </div>
@@ -251,15 +284,6 @@ export default function Index(props: IndexProps) {
           </div>
         </div>
       </div>
-
-      {/* <Button
-          onClick={() =>
-            setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
-          }
-          disabled={!wordList.length}
-        >
-          Generovat
-        </Button> */}
     </div>
   );
 }
