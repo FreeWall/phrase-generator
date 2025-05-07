@@ -24,7 +24,15 @@ export default function Layout(props: LayoutProps) {
           </Link>
         </div>
       </div> */}
-      {props.children}
+      <div className="w-full max-w-[800px]">
+        <div className="mb-14">
+          <div className="text-3xl font-semibold">Generátor frázového hesla</div>
+          <div className="pt-1">
+            Vytvořte si silné frázové heslo, které je snadno zapamatovatelné
+          </div>
+        </div>
+        {props.children}
+      </div>
     </div>
   );
 }

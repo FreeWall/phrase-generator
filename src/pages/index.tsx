@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { readFile } from 'fs/promises';
+import { round } from 'lodash-es';
 import { GetStaticProps } from 'next';
 import path from 'path';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,9 +9,11 @@ import { usePrevious } from 'react-use';
 
 import { EntropyLabel } from '@/components/index/EntropyLabel';
 import PhraseWords from '@/components/index/PhraseWords';
+import RefreshBox from '@/components/index/RefreshBox';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import { toDefinitions } from '@/utils/words/definitions';
+import { getEntropyLevel } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
 import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets/cs';
 import {
@@ -36,6 +39,7 @@ export default function Index(props: IndexProps) {
   const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
   const [passphrase, setPassphrase] = useState<string>();
+  const [entropyLabelExpanded, setEntropyLabelExpanded] = useState(false);
 
   const form = useForm({
     onSubmit: async ({ value }) => {
@@ -149,130 +153,103 @@ export default function Index(props: IndexProps) {
       `${form.state.values.phraseLength}-${form.state.values.maxWordLength}`
     ] ?? 0;
 
-  return (
-    <div className="w-full max-w-[800px]">
-      <div className="mb-14">
-        <div className="text-3xl font-semibold">Generátor frázového hesla</div>
-        <div className="pt-1">Vytvořte si silné frázové heslo, které je snadno zapamatovatelné</div>
-      </div>
+  useEffect(() => {
+    if (getEntropyLevel(round(entropy)) !== 'high') {
+      setEntropyLabelExpanded(true);
+    }
+  }, [entropy]);
 
-      {/* <div>
+  {
+    /* <div>
             {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
-          </div> */}
+          </div> */
+  }
 
-      <div className="space-y-14">
-        <div>
-          <div className="text-2xl font-semibold">Fráze</div>
-          <div className="mt-6">
-            {phrase && (
-              <div className="bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl select-none">
-                <div className="pt-4">
-                  <PhraseWords
-                    phrase={phrase}
-                    onWordClick={(idx) => {
-                      setPhrase((prev) => {
-                        const newPhrase = [...(prev ?? [])];
-                        if (!newPhrase[idx]) {
-                          return;
-                        }
-                        newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
-                        return newPhrase;
-                      });
-                    }}
-                  />
-                </div>
-                <div>
-                  <div
-                    className="text-highlight cursor-pointer p-4 hover:brightness-75"
-                    onClick={() =>
-                      setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
-                    }
-                  >
-                    <FaSyncAlt className="h-7 w-7" />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="mt-7 flex gap-8">
-            <div>
-              <EntropyLabel
-                entropy={entropy}
-                words={filteredWordList.length}
-              />
+  if (!phrase) {
+    return (
+      <div>
+        <div className="text-2xl font-semibold">Fráze</div>
+        <div className="mt-6">
+          <RefreshBox loading>
+            <div className="invisible p-4">
+              <FaSyncAlt className="h-7 w-7" />
             </div>
-            <div className="flex w-full justify-between gap-8">
-              <form.Field name="phraseLength">
-                {(field) => (
-                  <Slider
-                    className="w-full"
-                    label={
-                      <div>
-                        Délka fráze: <span className="font-semibold">{field.state.value} slov</span>
-                      </div>
-                    }
-                    min={minPresetLength}
-                    max={maxPresetLength}
-                    value={field.state.value}
-                    onChange={(value) => {
-                      field.handleChange(value as PresetLength);
-                      form.handleSubmit();
-                    }}
-                  />
-                )}
-              </form.Field>
-              <form.Field name="maxWordLength">
-                {(field) => (
-                  <Slider
-                    className="w-full"
-                    label={
-                      <div>
-                        Max. délka slova:{' '}
-                        <span className="font-semibold">{field.state.value} znaků</span>
-                      </div>
-                    }
-                    min={shortestWordLength}
-                    max={longestWordLength}
-                    value={field.state.value}
-                    onChange={(value) => {
-                      field.handleChange(value);
-                      form.handleSubmit();
-                    }}
-                  />
-                )}
-              </form.Field>
-            </div>
-          </div>
+          </RefreshBox>
         </div>
-        <div>
-          <div className="text-2xl font-semibold">Heslo</div>
-          <div className="mt-6">
-            {phrase && passphrase && (
-              <div className="bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl select-none">
-                <div className="pt-4 break-all">
-                  <NumbersHighlighter phrase={passphrase} />
-                </div>
-                <div
-                  className="text-highlight cursor-pointer p-4 hover:brightness-75"
-                  onClick={() => updatePassphrase()}
-                >
-                  <FaSyncAlt className="h-7 w-7" />
-                </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-14">
+      <div>
+        <div className="text-2xl font-semibold">Fráze</div>
+        <div className="mt-6">
+          <RefreshBox
+            onButtonClick={() =>
+              setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
+            }
+          >
+            {phrase && (
+              <div className="pt-4">
+                <PhraseWords
+                  phrase={phrase}
+                  onWordClick={(idx) => {
+                    setPhrase((prev) => {
+                      const newPhrase = [...(prev ?? [])];
+                      if (!newPhrase[idx]) {
+                        return;
+                      }
+                      newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
+                      return newPhrase;
+                    });
+                  }}
+                />
               </div>
             )}
+            {!phrase && <div className="text-center text-gray-500"></div>}
+          </RefreshBox>
+        </div>
+        <div className="mt-7 flex gap-8">
+          <div>
+            <EntropyLabel
+              entropy={entropy}
+              words={filteredWordList.length}
+              defaultExpanded={entropyLabelExpanded}
+            />
           </div>
-          <div className="mt-7 flex w-full justify-between gap-8">
-            <form.Field name="numbers">
+          <div className="flex w-full justify-between gap-8">
+            <form.Field name="phraseLength">
               {(field) => (
                 <Slider
                   className="w-full"
                   label={
                     <div>
-                      Počet číslic: <span className="font-semibold">{field.state.value}</span>
+                      Délka fráze: <span className="font-semibold">{field.state.value} slov</span>
                     </div>
                   }
-                  min={0}
-                  max={10}
+                  min={minPresetLength}
+                  max={maxPresetLength}
+                  value={field.state.value}
+                  onChange={(value) => {
+                    field.handleChange(value as PresetLength);
+                    form.handleSubmit();
+                  }}
+                />
+              )}
+            </form.Field>
+            <form.Field name="maxWordLength">
+              {(field) => (
+                <Slider
+                  className="w-full"
+                  label={
+                    <div>
+                      Max. délka slova:{' '}
+                      <span className="font-semibold">{field.state.value} znaků</span>
+                    </div>
+                  }
+                  min={shortestWordLength}
+                  max={longestWordLength}
                   value={field.state.value}
                   onChange={(value) => {
                     field.handleChange(value);
@@ -282,6 +259,39 @@ export default function Index(props: IndexProps) {
               )}
             </form.Field>
           </div>
+        </div>
+      </div>
+      <div>
+        <div className="text-2xl font-semibold">Heslo</div>
+        <div className="mt-6">
+          {phrase && passphrase && (
+            <RefreshBox onButtonClick={() => updatePassphrase()}>
+              <div className="pt-4 break-all">
+                <NumbersHighlighter phrase={passphrase} />
+              </div>
+            </RefreshBox>
+          )}
+        </div>
+        <div className="mt-7 flex w-full max-w-[240px] justify-between gap-8">
+          <form.Field name="numbers">
+            {(field) => (
+              <Slider
+                className="w-full"
+                label={
+                  <div>
+                    Počet číslic: <span className="font-semibold">{field.state.value}</span>
+                  </div>
+                }
+                min={0}
+                max={10}
+                value={field.state.value}
+                onChange={(value) => {
+                  field.handleChange(value);
+                  form.handleSubmit();
+                }}
+              />
+            )}
+          </form.Field>
         </div>
       </div>
     </div>
