@@ -8,11 +8,11 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap"
           rel="stylesheet"
         />
-        {/* <link
+        <link
           rel="shortcut icon"
           href="/assets/favicon.svg"
-          type="image/png"
-        /> */}
+          type="image/svg+xml"
+        />
       </Head>
       <body>
         <Main />

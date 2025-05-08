@@ -18,16 +18,15 @@ export default function RefreshBox(props: RefreshBoxProps) {
 
   return (
     <div
-      className={cn(
-        'bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl select-none',
-        { 'bg-loader': props.loading },
-      )}
+      className={cn('bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl', {
+        'bg-loader': props.loading,
+      })}
     >
       {props.children}
       {props.onButtonClick && (
         <div>
           <div
-            className="text-highlight cursor-pointer rounded-full p-4 hover:brightness-75"
+            className="text-highlight cursor-pointer rounded-full p-4 select-none hover:brightness-75"
             onClick={handleButtonClick}
             style={{
               transform: `rotate(${rotation}deg)`,

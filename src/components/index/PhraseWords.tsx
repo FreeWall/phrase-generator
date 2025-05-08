@@ -21,6 +21,11 @@ export default function PhraseWords(props: PhraseProps) {
             key={idx}
             className="cursor-pointer hover:underline"
             onClick={() => props.onWordClick(idx)}
+            onMouseDown={() => {
+              setTimeout(() => {
+                window.getSelection()?.removeAllRanges();
+              });
+            }}
             style={{
               color: DefinitionCategoryColors[word.definitions.k],
             }}
