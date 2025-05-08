@@ -28,6 +28,7 @@ import {
 const shortestWordLength = 3;
 
 interface IndexProps {
+  longestWordLength: number;
   precalculatedEntropies: Record<string, number>;
 }
 
@@ -36,7 +37,6 @@ export default function Index(props: IndexProps) {
   const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
-  const [longestWordLength, setLongestWordLength] = useState(20);
   const [phrase, setPhrase] = useState<Phrase>();
   const [passphrase, setPassphrase] = useState<string>();
   const [entropyLabelExpanded, setEntropyLabelExpanded] = useState(false);
@@ -60,7 +60,7 @@ export default function Index(props: IndexProps) {
     onSubmitMeta: {} as { initial: boolean },
     defaultValues: {
       phraseLength: 5 as PresetLength,
-      maxWordLength: longestWordLength,
+      maxWordLength: props.longestWordLength,
       numbers: 1,
     },
   });
@@ -114,11 +114,6 @@ export default function Index(props: IndexProps) {
       );
 
       setWordList(words);
-
-      const longestWord = words.reduce((prev, curr) =>
-        prev.value.length > curr.value.length ? prev : curr,
-      );
-      setLongestWordLength(longestWord.value.length);
     })();
   }, []);
 
@@ -249,7 +244,7 @@ export default function Index(props: IndexProps) {
                     </div>
                   }
                   min={shortestWordLength}
-                  max={longestWordLength}
+                  max={props.longestWordLength}
                   value={field.state.value}
                   onChange={(value) => {
                     field.handleChange(value);
@@ -322,13 +317,13 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
     }),
   );
 
-  const longestWord = words.reduce((prev, curr) =>
+  const longestWordLength = words.reduce((prev, curr) =>
     prev.value.length > curr.value.length ? prev : curr,
-  );
+  ).value.length;
 
   const precalculatedEntropies: Record<string, number> = {};
 
-  for (let wordLength = shortestWordLength; wordLength <= longestWord.value.length; wordLength++) {
+  for (let wordLength = shortestWordLength; wordLength <= longestWordLength; wordLength++) {
     const filteredWords = words.filter((word) => word.value.length <= wordLength);
     for (
       let presetLength: PresetLength = minPresetLength;
@@ -343,6 +338,7 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
 
   return {
     props: {
+      longestWordLength,
       precalculatedEntropies,
     },
   };
