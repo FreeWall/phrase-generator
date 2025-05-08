@@ -186,7 +186,17 @@ export default function Index(props: IndexProps) {
             }
           >
             {phrase && (
-              <div className="pt-4">
+              <div
+                className="pt-5"
+                onCopy={(event) => {
+                  const text = document.getSelection()?.toString().replaceAll('\n', '');
+                  if (!text) {
+                    return;
+                  }
+                  event.clipboardData.setData('text/plain', text);
+                  event.preventDefault();
+                }}
+              >
                 <PhraseWords
                   phrase={phrase}
                   onWordClick={(idx) => {
@@ -261,7 +271,7 @@ export default function Index(props: IndexProps) {
         <div className="mt-6">
           {phrase && passphrase && (
             <RefreshBox onButtonClick={() => updatePassphrase()}>
-              <div className="pt-4 break-all">
+              <div className="pt-5 break-all">
                 <NumbersHighlighter phrase={passphrase} />
               </div>
             </RefreshBox>

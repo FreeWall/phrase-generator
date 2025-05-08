@@ -1,10 +1,11 @@
-import { PropsWithChildren, useState } from 'react';
+import { MouseEventHandler, PropsWithChildren, useState } from 'react';
 import { FaSyncAlt } from 'react-icons/fa';
 
 import { cn } from '@/utils/utils';
 
 interface RefreshBoxProps extends PropsWithChildren {
   loading?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   onButtonClick?: () => void;
 }
 
@@ -18,15 +19,16 @@ export default function RefreshBox(props: RefreshBoxProps) {
 
   return (
     <div
-      className={cn('bg-darker flex justify-between rounded-lg py-4 pr-4 pl-8 text-2xl', {
+      className={cn('bg-darker flex justify-between rounded-lg py-4 pr-4 pl-9 text-2xl', {
         'bg-loader': props.loading,
       })}
+      onClick={props.onClick}
     >
       {props.children}
       {props.onButtonClick && (
         <div>
           <div
-            className="text-highlight cursor-pointer rounded-full p-4 select-none hover:brightness-75"
+            className="text-highlight cursor-pointer rounded-full px-4 py-5 select-none hover:brightness-75"
             onClick={handleButtonClick}
             style={{
               transform: `rotate(${rotation}deg)`,
