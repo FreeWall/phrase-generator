@@ -27,16 +27,17 @@ export default function RefreshBox(props: RefreshBoxProps) {
       {props.children}
       {props.onButtonClick && (
         <div>
-          <div
-            className="text-highlight cursor-pointer rounded-full px-4 py-5 select-none hover:brightness-75"
+          <button
+            className="text-highlight cursor-pointer rounded-full px-4 py-5 outline-none select-none hover:brightness-75"
             onClick={handleButtonClick}
+            type="button"
             style={{
               transform: `rotate(${rotation}deg)`,
               transition: 'transform 0.3s cubic-bezier(0.3, 1, 0.5, 1)',
             }}
           >
             <FaSyncAlt className="h-7 w-7" />
-          </div>
+          </button>
         </div>
       )}
     </div>

@@ -166,7 +166,7 @@ export default function Index(props: IndexProps) {
         <div className="text-2xl font-semibold">Fráze</div>
         <div className="mt-6">
           <RefreshBox loading>
-            <div className="invisible p-4">
+            <div className="invisible p-5">
               <FaSyncAlt className="h-7 w-7" />
             </div>
           </RefreshBox>
@@ -220,7 +220,7 @@ export default function Index(props: IndexProps) {
             <EntropyLabel
               entropy={entropy}
               words={filteredWordList.length}
-              defaultExpanded={entropyLabelExpanded}
+              forceExpand={entropyLabelExpanded}
             />
           </div>
           <div className="flex w-full justify-between gap-8">

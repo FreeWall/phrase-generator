@@ -33,31 +33,27 @@ const entropyLevelIcon = {
 export function EntropyLabel({
   entropy,
   words,
-  defaultExpanded = false,
+  forceExpand = false,
 }: {
   entropy: number;
   words: number;
-  defaultExpanded?: boolean;
+  forceExpand?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [expanded, setExpanded] = useState<boolean | undefined>(undefined);
   const combinations = entropyToCombinations(entropy);
   const timeToCrack = formatPeriod(getCrackTimeSeconds(entropy));
   const entropyLevel = getEntropyLevel(round(entropy));
 
   useEffect(() => {
-    if (defaultExpanded) {
+    if (expanded === undefined && forceExpand) {
       setExpanded(true);
     }
-  }, [defaultExpanded]);
+  }, [expanded, forceExpand]);
 
   return (
     <div
       className="group flex w-[256px] cursor-pointer flex-col"
       onClick={() => {
-        if (defaultExpanded) {
-          setExpanded((prev) => !prev);
-          return;
-        }
         setExpanded((prev) => !prev);
       }}
     >

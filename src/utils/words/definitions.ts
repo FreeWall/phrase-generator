@@ -47,7 +47,7 @@ export const DefinitionValue = {
 
 export const DefinitionCategoryColors = {
   [DefinitionValue.CATEGORY.NOUN]: '#5a7800',
-  [DefinitionValue.CATEGORY.ADJECTIVE]: '#c77000',
+  [DefinitionValue.CATEGORY.ADJECTIVE]: '#c26400',
   [DefinitionValue.CATEGORY.VERB]: '#970091',
 };
 
