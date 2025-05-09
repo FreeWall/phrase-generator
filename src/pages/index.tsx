@@ -12,6 +12,7 @@ import PhraseWords from '@/components/index/PhraseWords';
 import RefreshBox from '@/components/index/RefreshBox';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
+import { useStorageStore } from '@/stores/storage';
 import { toDefinitions } from '@/utils/words/definitions';
 import { getEntropyLevel } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
@@ -41,6 +42,16 @@ export default function Index(props: IndexProps) {
   const [passphrase, setPassphrase] = useState<string>();
   const [entropyLabelExpanded, setEntropyLabelExpanded] = useState(false);
 
+  const [phraseLength, setPhraseLength] = useStorageStore((state) => [
+    state.phraseLength,
+    state.setPhraseLength,
+  ]);
+  const [maxWordLength, setMaxWordLength] = useStorageStore((state) => [
+    state.maxWordLength,
+    state.setMaxWordLength,
+  ]);
+  const [digits, setDigits] = useStorageStore((state) => [state.digits, state.setDigits]);
+
   const form = useForm({
     onSubmit: async ({ value }) => {
       const phraseOptionsChanged =
@@ -59,9 +70,9 @@ export default function Index(props: IndexProps) {
     },
     onSubmitMeta: {} as { initial: boolean },
     defaultValues: {
-      phraseLength: 5 as PresetLength,
-      maxWordLength: props.longestWordLength,
-      numbers: 1,
+      phraseLength: phraseLength ?? maxPresetLength,
+      maxWordLength: maxWordLength ?? props.longestWordLength,
+      digits: digits ?? 1,
     },
   });
 
@@ -131,17 +142,17 @@ export default function Index(props: IndexProps) {
     }
     setPassphrase(
       passwordize(phraseToString(phrase), {
-        numbers: form.state.values.numbers,
+        digits: form.state.values.digits,
         firstLetter: 'randomize',
         diacritics: true,
         spaces: false,
       }),
     );
-  }, [phrase, form.state.values.numbers]);
+  }, [phrase, form.state.values.digits]);
 
   useEffect(() => {
     updatePassphrase();
-  }, [updatePassphrase, phrase, form.state.values.numbers]);
+  }, [updatePassphrase, phrase, form.state.values.digits]);
 
   const entropy =
     props.precalculatedEntropies[
@@ -237,6 +248,7 @@ export default function Index(props: IndexProps) {
                   max={maxPresetLength}
                   value={field.state.value}
                   onChange={(value) => {
+                    setPhraseLength(value as PresetLength);
                     field.handleChange(value as PresetLength);
                     form.handleSubmit();
                   }}
@@ -257,6 +269,7 @@ export default function Index(props: IndexProps) {
                   max={props.longestWordLength}
                   value={field.state.value}
                   onChange={(value) => {
+                    setMaxWordLength(value);
                     field.handleChange(value);
                     form.handleSubmit();
                   }}
@@ -278,7 +291,7 @@ export default function Index(props: IndexProps) {
           )}
         </div>
         <div className="mt-7 flex w-full max-w-[240px] justify-between gap-8">
-          <form.Field name="numbers">
+          <form.Field name="digits">
             {(field) => (
               <Slider
                 className="w-full"
@@ -291,6 +304,7 @@ export default function Index(props: IndexProps) {
                 max={10}
                 value={field.state.value}
                 onChange={(value) => {
+                  setDigits(value);
                   field.handleChange(value);
                   form.handleSubmit();
                 }}

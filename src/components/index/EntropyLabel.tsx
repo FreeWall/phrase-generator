@@ -3,6 +3,7 @@ import { round } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { FaAngleDown, FaAngleUp, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 
+import { useStorageStore } from '@/stores/storage';
 import { formatLargeNumber, formatPeriod } from '@/utils/formats';
 import { cn } from '@/utils/utils';
 import {
@@ -39,7 +40,11 @@ export function EntropyLabel({
   words: number;
   forceExpand?: boolean;
 }) {
-  const [expanded, setExpanded] = useState<boolean | undefined>(undefined);
+  const [entropyExpanded, setEntropyExpanded] = useStorageStore((state) => [
+    state.entropyExpanded,
+    state.setEntropyExpanded,
+  ]);
+  const [expanded, setExpanded] = useState<boolean | undefined>(entropyExpanded);
   const combinations = entropyToCombinations(entropy);
   const timeToCrack = formatPeriod(getCrackTimeSeconds(entropy));
   const entropyLevel = getEntropyLevel(round(entropy));
@@ -55,6 +60,7 @@ export function EntropyLabel({
       className="group flex w-[256px] cursor-pointer flex-col"
       onClick={() => {
         setExpanded((prev) => !prev);
+        setEntropyExpanded((prev) => !prev);
       }}
     >
       <div className={cn('rounded-lg', entropyLevelBgColors[entropyLevel])}>
