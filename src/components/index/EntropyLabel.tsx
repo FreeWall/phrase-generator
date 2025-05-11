@@ -40,9 +40,9 @@ export function EntropyLabel({
   words: number;
   forceExpand?: boolean;
 }) {
-  const [entropyExpanded, setEntropyExpanded] = useStorageStore((state) => [
-    state.entropyExpanded,
-    state.setEntropyExpanded,
+  const [entropyExpanded, setPhraseOptions] = useStorageStore((state) => [
+    state.phraseOptions.entropyExpanded,
+    state.setPhraseOptions,
   ]);
   const [expanded, setExpanded] = useState<boolean | undefined>(entropyExpanded);
   const combinations = entropyToCombinations(entropy);
@@ -60,7 +60,10 @@ export function EntropyLabel({
       className="group flex w-[256px] cursor-pointer flex-col"
       onClick={() => {
         setExpanded((prev) => !prev);
-        setEntropyExpanded((prev) => !prev);
+        setPhraseOptions((prev) => ({
+          ...prev,
+          entropyExpanded: !prev.entropyExpanded,
+        }));
       }}
     >
       <div className={cn('rounded-lg', entropyLevelBgColors[entropyLevel])}>

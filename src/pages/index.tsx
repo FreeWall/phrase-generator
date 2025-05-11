@@ -12,6 +12,7 @@ import PhraseWords from '@/components/index/PhraseWords';
 import RefreshBox from '@/components/index/RefreshBox';
 import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
+import Switch from '@/components/ui/Switch';
 import { useStorageStore } from '@/stores/storage';
 import { toDefinitions } from '@/utils/words/definitions';
 import { getEntropyLevel } from '@/utils/words/entropy';
@@ -42,15 +43,15 @@ export default function Index(props: IndexProps) {
   const [passphrase, setPassphrase] = useState<string>();
   const [entropyLabelExpanded, setEntropyLabelExpanded] = useState(false);
 
-  const [phraseLength, setPhraseLength] = useStorageStore((state) => [
-    state.phraseLength,
-    state.setPhraseLength,
+  const [phraseOptions, setPhraseOptions] = useStorageStore((state) => [
+    state.phraseOptions,
+    state.setPhraseOptions,
   ]);
-  const [maxWordLength, setMaxWordLength] = useStorageStore((state) => [
-    state.maxWordLength,
-    state.setMaxWordLength,
+
+  const [passwordizeOptions, setPasswordizeOptions] = useStorageStore((state) => [
+    state.passwordizeOptions,
+    state.setPasswordizeOptions,
   ]);
-  const [digits, setDigits] = useStorageStore((state) => [state.digits, state.setDigits]);
 
   const form = useForm({
     onSubmit: async ({ value }) => {
@@ -70,9 +71,11 @@ export default function Index(props: IndexProps) {
     },
     onSubmitMeta: {} as { initial: boolean },
     defaultValues: {
-      phraseLength: phraseLength ?? maxPresetLength,
-      maxWordLength: maxWordLength ?? props.longestWordLength,
-      digits: digits ?? 1,
+      phraseLength: phraseOptions.phraseLength ?? maxPresetLength,
+      maxWordLength: phraseOptions.maxWordLength ?? props.longestWordLength,
+      digits: passwordizeOptions.digits ?? 1,
+      diacritics: passwordizeOptions.diacritics ?? false,
+      spaces: passwordizeOptions.spaces ?? false,
     },
   });
 
@@ -143,12 +146,12 @@ export default function Index(props: IndexProps) {
     setPassphrase(
       passwordize(phraseToString(phrase), {
         digits: form.state.values.digits,
-        firstLetter: 'randomize',
-        diacritics: true,
-        spaces: false,
+        firstLetter: undefined,
+        diacritics: form.state.values.diacritics,
+        spaces: form.state.values.spaces,
       }),
     );
-  }, [phrase, form.state.values.digits]);
+  }, [phrase, form.state.values]);
 
   useEffect(() => {
     updatePassphrase();
@@ -248,7 +251,10 @@ export default function Index(props: IndexProps) {
                   max={maxPresetLength}
                   value={field.state.value}
                   onChange={(value) => {
-                    setPhraseLength(value as PresetLength);
+                    setPhraseOptions((prev) => ({
+                      ...prev,
+                      phraseLength: value as PresetLength,
+                    }));
                     field.handleChange(value as PresetLength);
                     form.handleSubmit();
                   }}
@@ -269,7 +275,10 @@ export default function Index(props: IndexProps) {
                   max={props.longestWordLength}
                   value={field.state.value}
                   onChange={(value) => {
-                    setMaxWordLength(value);
+                    setPhraseOptions((prev) => ({
+                      ...prev,
+                      maxWordLength: value,
+                    }));
                     field.handleChange(value);
                     form.handleSubmit();
                   }}
@@ -290,11 +299,11 @@ export default function Index(props: IndexProps) {
             </RefreshBox>
           )}
         </div>
-        <div className="mt-7 flex w-full max-w-[240px] justify-between gap-8">
+        <div className="mt-7 flex w-full items-end gap-8">
           <form.Field name="digits">
             {(field) => (
               <Slider
-                className="w-full"
+                className="w-[240px]"
                 label={
                   <div>
                     Počet číslic: <span className="font-semibold">{field.state.value}</span>
@@ -304,11 +313,62 @@ export default function Index(props: IndexProps) {
                 max={10}
                 value={field.state.value}
                 onChange={(value) => {
-                  setDigits(value);
+                  setPasswordizeOptions((prev) => ({
+                    ...prev,
+                    digits: value,
+                  }));
                   field.handleChange(value);
                   form.handleSubmit();
                 }}
               />
+            )}
+          </form.Field>
+          <form.Field name="spaces">
+            {(field) => (
+              <div className="flex items-center">
+                <Switch
+                  id="spaces"
+                  checked={!field.state.value}
+                  onChange={(value) => {
+                    setPasswordizeOptions((prev) => ({
+                      ...prev,
+                      spaces: !value,
+                    }));
+                    field.handleChange(!value);
+                    form.handleSubmit();
+                  }}
+                />
+                <label
+                  htmlFor="spaces"
+                  className="ml-3 cursor-pointer"
+                >
+                  Odstranit mezery
+                </label>
+              </div>
+            )}
+          </form.Field>
+          <form.Field name="diacritics">
+            {(field) => (
+              <div className="flex items-center">
+                <Switch
+                  id="diacritics"
+                  checked={!field.state.value}
+                  onChange={(value) => {
+                    setPasswordizeOptions((prev) => ({
+                      ...prev,
+                      diacritics: !value,
+                    }));
+                    field.handleChange(!value);
+                    form.handleSubmit();
+                  }}
+                />
+                <label
+                  htmlFor="diacritics"
+                  className="ml-3 cursor-pointer"
+                >
+                  Odstranit diakritiku
+                </label>
+              </div>
             )}
           </form.Field>
         </div>

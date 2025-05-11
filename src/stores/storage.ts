@@ -2,27 +2,31 @@ import { useEffect } from 'react';
 import { combine } from 'zustand/middleware';
 import { createWithEqualityFn as create } from 'zustand/traditional';
 
+import { PasswordizeOptions } from '@/utils/words/passwordize';
 import { PresetLength } from '@/utils/words/presets/cs';
 import { Setter, createSetter } from '@/utils/zustand';
 
 const storageKey = 'phrase-generator';
 
 export interface StorageData {
-  entropyExpanded?: boolean;
-  phraseLength?: PresetLength;
-  maxWordLength?: number;
-  digits?: number;
+  phraseOptions: {
+    entropyExpanded?: boolean;
+    phraseLength?: PresetLength;
+    maxWordLength?: number;
+  };
+  passwordizeOptions: PasswordizeOptions;
 }
 
 interface StorageStore extends StorageData {
-  setEntropyExpanded: Setter<StorageStore['entropyExpanded']>;
-  setPhraseLength: Setter<StorageStore['phraseLength']>;
-  setMaxWordLength: Setter<StorageStore['maxWordLength']>;
-  setDigits: Setter<StorageStore['digits']>;
+  setPhraseOptions: Setter<StorageStore['phraseOptions']>;
+  setPasswordizeOptions: Setter<StorageStore['passwordizeOptions']>;
   reset: () => void;
 }
 
-const defaults: StorageData = {};
+const defaults: StorageData = {
+  phraseOptions: {},
+  passwordizeOptions: {},
+};
 
 function loadFromStorage(): StorageData {
   const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : undefined;
@@ -36,31 +40,25 @@ function loadFromStorage(): StorageData {
 export const useStorageStore = create(
   combine<StorageData, StorageStore>(loadFromStorage(), (set, get) => ({
     ...loadFromStorage(),
-    setEntropyExpanded: createSetter(set, get, 'entropyExpanded'),
-    setPhraseLength: createSetter(set, get, 'phraseLength'),
-    setMaxWordLength: createSetter(set, get, 'maxWordLength'),
-    setDigits: createSetter(set, get, 'digits'),
+    setPhraseOptions: createSetter(set, get, 'phraseOptions'),
+    setPasswordizeOptions: createSetter(set, get, 'passwordizeOptions'),
     reset: () => set(defaults),
   })),
 );
 
 export function StorageProvider({ children }: { children: React.ReactNode }) {
-  const entropyExpanded = useStorageStore((state) => state.entropyExpanded);
-  const phraseLength = useStorageStore((state) => state.phraseLength);
-  const maxWordLength = useStorageStore((state) => state.maxWordLength);
-  const digits = useStorageStore((state) => state.digits);
+  const phraseOptions = useStorageStore((state) => state.phraseOptions);
+  const passwordizeOptions = useStorageStore((state) => state.passwordizeOptions);
 
   useEffect(() => {
     localStorage.setItem(
       storageKey,
       JSON.stringify({
-        entropyExpanded,
-        phraseLength,
-        maxWordLength,
-        digits,
+        phraseOptions,
+        passwordizeOptions,
       }),
     );
-  }, [entropyExpanded, phraseLength, maxWordLength, digits]);
+  }, [phraseOptions, passwordizeOptions]);
 
   return children;
 }

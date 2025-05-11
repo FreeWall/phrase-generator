@@ -1,20 +1,14 @@
 import { getRandomBoolean, getRandomNumber } from '@/utils/random';
 
-export function passwordize(
-  phrase: string,
-  options?: {
-    digits?: number;
-    firstLetter?: 'randomize' | 'lowercase' | 'uppercase';
-    diacritics?: boolean;
-    spaces?: boolean;
-  },
-): string {
-  const {
-    digits = 1,
-    firstLetter = 'randomize',
-    diacritics = true,
-    spaces = false,
-  } = options || {};
+export interface PasswordizeOptions {
+  digits?: number;
+  firstLetter?: 'randomize' | 'lowercase' | 'uppercase';
+  diacritics?: boolean;
+  spaces?: boolean;
+}
+
+export function passwordize(phrase: string, options?: PasswordizeOptions): string {
+  const { digits = 1, firstLetter = undefined, diacritics = false, spaces = false } = options || {};
   const words = phrase
     .split(' ')
     .map((word) => {
