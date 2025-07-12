@@ -14,6 +14,7 @@ import { NumbersHighlighter } from '@/components/ui/NumbersHighlighter';
 import Slider from '@/components/ui/Slider';
 import Switch from '@/components/ui/Switch';
 import { useStorageStore } from '@/stores/storage';
+import { vibrate } from '@/utils/utils';
 import { toDefinitions } from '@/utils/words/definitions';
 import { getEntropyLevel } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
@@ -177,8 +178,8 @@ export default function Index(props: IndexProps) {
   if (!phrase) {
     return (
       <div>
-        <div className="text-2xl font-semibold">Fráze</div>
-        <div className="mt-6">
+        <div className="text-xl font-semibold sm:text-2xl">Fráze</div>
+        <div className="mt-4 sm:mt-6">
           <RefreshBox loading>
             <div className="invisible p-5">
               <FaSyncAlt className="h-7 w-7" />
@@ -192,8 +193,8 @@ export default function Index(props: IndexProps) {
   return (
     <div className="space-y-14">
       <div>
-        <div className="text-2xl font-semibold">Fráze</div>
-        <div className="mt-6">
+        <div className="text-xl font-semibold sm:text-2xl">Fráze</div>
+        <div className="mt-4 sm:mt-6">
           <RefreshBox
             onButtonClick={() =>
               setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
@@ -201,7 +202,7 @@ export default function Index(props: IndexProps) {
           >
             {phrase && (
               <div
-                className="pt-5"
+                className="min-h-14 sm:min-h-auto sm:pt-5"
                 onCopy={(event) => {
                   const text = document.getSelection()?.toString().replaceAll('\n', '');
                   if (!text) {
@@ -214,6 +215,7 @@ export default function Index(props: IndexProps) {
                 <PhraseWords
                   phrase={phrase}
                   onWordClick={(idx) => {
+                    vibrate(1);
                     setPhrase((prev) => {
                       const newPhrase = [...(prev ?? [])];
                       if (!newPhrase[idx]) {
@@ -229,7 +231,7 @@ export default function Index(props: IndexProps) {
             {!phrase && <div className="text-center text-gray-500"></div>}
           </RefreshBox>
         </div>
-        <div className="mt-7 flex gap-8">
+        <div className="mt-4 flex flex-col gap-8 sm:mt-7 md:flex-row">
           <div>
             <EntropyLabel
               entropy={entropy}
@@ -237,11 +239,11 @@ export default function Index(props: IndexProps) {
               forceExpand={entropyLabelExpanded}
             />
           </div>
-          <div className="flex w-full justify-between gap-8">
+          <div className="flex w-full flex-col justify-between gap-8 md:flex-row">
             <form.Field name="phraseLength">
               {(field) => (
                 <Slider
-                  className="w-full"
+                  className="w-full sm:w-64 md:w-full"
                   label={
                     <div>
                       Délka fráze: <span className="font-semibold">{field.state.value} slov</span>
@@ -264,7 +266,7 @@ export default function Index(props: IndexProps) {
             <form.Field name="maxWordLength">
               {(field) => (
                 <Slider
-                  className="w-full"
+                  className="w-full sm:w-64 md:w-full"
                   label={
                     <div>
                       Max. délka slova:{' '}
@@ -289,8 +291,8 @@ export default function Index(props: IndexProps) {
         </div>
       </div>
       <div>
-        <div className="text-2xl font-semibold">Heslo</div>
-        <div className="mt-6">
+        <div className="text-xl font-semibold sm:text-2xl">Heslo</div>
+        <div className="mt-4 sm:mt-6">
           {phrase && passphrase && (
             <RefreshBox onButtonClick={() => updatePassphrase()}>
               <div className="pt-5 break-all">
@@ -299,7 +301,7 @@ export default function Index(props: IndexProps) {
             </RefreshBox>
           )}
         </div>
-        <div className="mt-7 flex w-full items-end gap-8">
+        <div className="mt-4 flex w-full items-end gap-8 sm:mt-7">
           <form.Field name="digits">
             {(field) => (
               <Slider

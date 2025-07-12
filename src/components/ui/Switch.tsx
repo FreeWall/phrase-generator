@@ -14,7 +14,7 @@ export default function Switch(props: SwitchProps) {
     <RadixSwitch.Root
       id={props.id}
       className={cn(
-        'data-[state=checked]:bg-text relative h-[20px] w-[36px] cursor-pointer rounded-full bg-[#ccd5dd] transition-colors outline-none',
+        'data-[state=checked]:bg-text h-[20px] w-[36px] cursor-pointer rounded-full bg-[#ccd5dd] transition-colors outline-none',
         props.className,
       )}
       checked={props.checked}

@@ -1,6 +1,6 @@
 import { AnimatePresence, cubicBezier, motion } from 'framer-motion';
 import { round } from 'lodash-es';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FaAngleDown, FaAngleUp, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 
 import { useStorageStore } from '@/stores/storage';
@@ -49,15 +49,13 @@ export function EntropyLabel({
   const timeToCrack = formatPeriod(getCrackTimeSeconds(entropy));
   const entropyLevel = getEntropyLevel(round(entropy));
 
-  useEffect(() => {
-    if (expanded === undefined && forceExpand) {
-      setExpanded(true);
-    }
-  }, [expanded, forceExpand]);
+  if (expanded === undefined && forceExpand) {
+    setExpanded(true);
+  }
 
   return (
     <div
-      className="group flex w-[256px] cursor-pointer flex-col"
+      className="group flex w-full cursor-pointer flex-col sm:w-64"
       onClick={() => {
         setExpanded((prev) => !prev);
         setPhraseOptions((prev) => ({

@@ -1,7 +1,7 @@
 import ReactSlider from 'rc-slider';
 import { ReactNode } from 'react';
 
-import { cn } from '@/utils/utils';
+import { cn, vibrate } from '@/utils/utils';
 
 interface SliderProps {
   min: number;
@@ -18,7 +18,7 @@ export default function Slider(props: SliderProps) {
   return (
     <div className={cn('', props.className)}>
       {props.label && <div className="mb-3">{props.label}</div>}
-      <div className="pr-4">
+      <div className="pr-6 sm:pr-4">
         <ReactSlider
           min={props.min}
           max={props.max}
@@ -28,15 +28,18 @@ export default function Slider(props: SliderProps) {
           className="relative h-2 w-full touch-none select-none"
           classNames={{
             handle: cn(
-              'absolute bg-text rounded-full w-5 h-5 -mt-1.5 cursor-grab ml-2 outline-none',
+              'absolute bg-text rounded-full w-6 h-6 sm:w-5 sm:h-5 -mt-2 sm:-mt-1.5 cursor-grab ml-3 sm:ml-2 outline-none',
               { 'bg-border cursor-default': props.disabled },
             ),
-            track: cn('absolute h-2 bg-text rounded-full pr-2 box-content', {
+            track: cn('absolute h-2 bg-text rounded-full pr-4 sm:pr-2 box-content', {
               'bg-border': props.disabled,
             }),
-            rail: /** @tw */ 'absolute w-full h-2 bg-darker rounded-full box-content pr-4',
+            rail: /** @tw */ 'absolute w-full h-2 bg-darker rounded-full box-content pr-6 sm:pr-4',
           }}
-          onChange={(value) => props.onChange?.(value as number)}
+          onChange={(value) => {
+            vibrate(1);
+            props.onChange?.(value as number);
+          }}
           styles={{
             track: {},
           }}
