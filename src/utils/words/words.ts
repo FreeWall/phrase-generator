@@ -1,7 +1,12 @@
 import { round } from 'lodash-es';
 
 import { getRandomNumber } from '@/utils/random';
-import { DefinitionGroup, DefinitionTuple, Definitions } from '@/utils/words/definitions';
+import {
+  DefinitionGroup,
+  DefinitionTuple,
+  Definitions,
+  toDefinitions,
+} from '@/utils/words/definitions';
 import { calculateEntropy } from '@/utils/words/entropy';
 import { PresetLength, presets } from '@/utils/words/presets/cs';
 
@@ -10,6 +15,23 @@ export const wordLists = [
   '/assets/words/cs/k2.txt',
   '/assets/words/cs/k5.txt',
 ];
+
+export function fillWordsArrayFromFile(words: Word[], content: string): void {
+  const lines = content.split('\n').filter((word) => !!word);
+
+  for (const line of lines) {
+    const parts = line.split(',');
+    const word = parts[0];
+    const definitions = parts[1];
+    if (!word || !definitions) {
+      continue;
+    }
+    words.push({
+      value: word,
+      definitions: toDefinitions(definitions),
+    });
+  }
+}
 
 export type PresetWordDefinitions = {
   base: DefinitionTuple<any>[];

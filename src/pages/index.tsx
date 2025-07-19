@@ -15,13 +15,13 @@ import Slider from '@/components/ui/Slider';
 import Switch from '@/components/ui/Switch';
 import { useStorageStore } from '@/stores/storage';
 import { vibrate } from '@/utils/utils';
-import { toDefinitions } from '@/utils/words/definitions';
 import { getEntropyLevel } from '@/utils/words/entropy';
 import { passwordize } from '@/utils/words/passwordize';
 import { PresetLength, maxPresetLength, minPresetLength } from '@/utils/words/presets/cs';
 import {
   Phrase,
   Word,
+  fillWordsArrayFromFile,
   generatePhrase,
   getEntropy,
   phraseToString,
@@ -36,8 +36,6 @@ interface IndexProps {
 }
 
 export default function Index(props: IndexProps) {
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [totalLength, setTotalLength] = useState(0);
   const [wordList, setWordList] = useState<Word[]>([]);
   const [filteredWordList, setFilteredWordList] = useState<Word[]>([]);
   const [phrase, setPhrase] = useState<Phrase>();
@@ -84,47 +82,11 @@ export default function Index(props: IndexProps) {
 
   useEffect(() => {
     (async () => {
-      setTotalLength(0);
-      setLoadingProgress(0);
       const words: Word[] = [];
       await Promise.all(
         wordLists.map(async (url) => {
-          const response = await fetch(url);
-
-          const reader = response.body?.getReader();
-          if (!reader) {
-            return;
-          }
-
-          const contentLength = response.headers.get('Content-Length');
-          setTotalLength((prev) => prev + Number(contentLength));
-
-          let content = '';
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              break;
-            }
-
-            content += new TextDecoder().decode(value);
-            setLoadingProgress((prev) => prev + value.length);
-          }
-
-          const lines = content.split('\n').filter((word) => !!word);
-
-          for (const line of lines) {
-            const parts = line.split(',');
-            const word = parts[0];
-            const definitions = parts[1];
-            if (!word || !definitions) {
-              return;
-            }
-            words.push({
-              value: word,
-              definitions: toDefinitions(definitions),
-            });
-          }
+          const content = await fetch(url);
+          fillWordsArrayFromFile(words, await content.text());
         }),
       );
 
@@ -168,12 +130,6 @@ export default function Index(props: IndexProps) {
       setEntropyLabelExpanded(true);
     }
   }, [entropy]);
-
-  {
-    /* <div>
-            {round(loadingProgress / 1024 / 1024, 1)} MB / {round(totalLength / 1024 / 1024, 1)} MB
-          </div> */
-  }
 
   if (!phrase) {
     return (
@@ -385,21 +341,7 @@ export const getStaticProps: GetStaticProps<IndexProps> = async () => {
   await Promise.all(
     wordLists.map(async (file) => {
       const content = await readFile(path.join(process.cwd(), 'public', file), 'utf8');
-
-      const lines = content.split('\n').filter((word) => !!word);
-
-      for (const line of lines) {
-        const parts = line.split(',');
-        const word = parts[0];
-        const definitions = parts[1];
-        if (!word || !definitions) {
-          return;
-        }
-        words.push({
-          value: word,
-          definitions: toDefinitions(definitions),
-        });
-      }
+      fillWordsArrayFromFile(words, content);
     }),
   );
 
