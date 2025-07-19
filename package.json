@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "export": "next build && touch ./build/.nojekyll",
-    "deploy": "yarn && yarn export",
+    "deploy": "yarn install --frozen-lockfile && yarn export",
     "preinstall": "npx only-allow yarn"
   },
   "engines": {
