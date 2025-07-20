@@ -30,6 +30,8 @@ import {
 
 const shortestWordLength = 3;
 
+export type WordsHistory = Record<number, Word[]>;
+
 interface IndexProps {
   longestWordLength: number;
   precalculatedEntropies: Record<string, number>;
@@ -41,6 +43,7 @@ export default function Index(props: IndexProps) {
   const [phrase, setPhrase] = useState<Phrase>();
   const [passphrase, setPassphrase] = useState<string>();
   const [entropyLabelExpanded, setEntropyLabelExpanded] = useState(false);
+  const [wordsHistory, setWordsHistory] = useState<WordsHistory>({});
 
   const [phraseOptions, setPhraseOptions] = useStorageStore((state) => [
     state.phraseOptions,
@@ -66,6 +69,7 @@ export default function Index(props: IndexProps) {
 
       if (phraseOptionsChanged) {
         setPhrase(generatePhrase(words, form.state.values.phraseLength));
+        setWordsHistory({});
       }
     },
     onSubmitMeta: {} as { initial: boolean },
@@ -152,9 +156,10 @@ export default function Index(props: IndexProps) {
         <div className="text-xl font-semibold sm:text-2xl">Fráze</div>
         <div className="mt-4 sm:mt-6">
           <RefreshBox
-            onButtonClick={() =>
-              setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength))
-            }
+            onButtonClick={() => {
+              setPhrase(generatePhrase(filteredWordList, form.state.values.phraseLength));
+              setWordsHistory({});
+            }}
           >
             {phrase && (
               <div
@@ -170,6 +175,7 @@ export default function Index(props: IndexProps) {
               >
                 <PhraseWords
                   phrase={phrase}
+                  wordsHistory={wordsHistory}
                   onWordClick={(idx) => {
                     vibrate(1);
                     setPhrase((prev) => {
@@ -177,8 +183,34 @@ export default function Index(props: IndexProps) {
                       if (!newPhrase[idx]) {
                         return;
                       }
+
+                      setWordsHistory((prev) => {
+                        const history = { ...prev };
+                        if (!history[idx]) {
+                          history[idx] = [];
+                        }
+                        history[idx].push(newPhrase[idx]!.word);
+                        return history;
+                      });
+
                       newPhrase[idx]!.word = newPhrase[idx].generate(filteredWordList);
                       return newPhrase;
+                    });
+                  }}
+                  onHistoryWordClick={(idx, word) => {
+                    vibrate(1);
+                    setPhrase((prev) => {
+                      if (!prev) {
+                        return;
+                      }
+                      const newPhrase = [...prev];
+                      newPhrase[idx]!.word = word;
+                      return newPhrase;
+                    });
+                    setWordsHistory((prev) => {
+                      const history = { ...prev };
+                      history[idx] = (history[idx] ?? []).filter((w) => w.value !== word.value);
+                      return history;
                     });
                   }}
                 />
